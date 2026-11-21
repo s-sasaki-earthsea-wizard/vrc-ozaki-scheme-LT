@@ -1,4 +1,4 @@
-# vrc-ozaki-schema-LT
+# vrc-ozaki-scheme-LT
 
 コンシューマ GPU (GeForce RTX) で、CUDA 13.4 の cuBLAS に入った FP64 エミュレーション
 (Ozaki scheme I / II) がどれだけ DGEMM と PDE 計算を速くするか、また精度が FP64 相当に
