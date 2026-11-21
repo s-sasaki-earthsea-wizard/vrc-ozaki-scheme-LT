@@ -182,7 +182,11 @@ make cpu-phi-sweep  # CPU の φ 掃引 (results-phi/)。THREADS=14 のように
 make fortran-quick  # Fortran + NVBLAS の drop-in を小サイズで動作確認 (results-quick/fortran/)
 make fortran-bench  # Fortran + NVBLAS の drop-in 本番 (results-fortran/)。先に make build が必要
 make analyze      # results/ と results-phi/ から図と report.md を再生成
+make slides       # スライドを http://localhost:8000 で表示 (python3 の http.server)
+make fonts        # スライド (slides-jp/index.html) で使う字にフォントを絞り直す (uv が必要)
 ```
+
+スライドの表示や PDF 出力は [slides-jp/README.md](slides-jp/README.md)。
 
 GPU と CPU のベンチは**同時に走らせない** (どちらもホスト CPU を使うため)。
 
@@ -256,13 +260,14 @@ NumPy の参照解は `cache/` にキャッシュされ、全条件で同じも�
 │   ├── summarize_nsys.py      # nsys のカーネル集計から実行経路を判定
 │   └── benchmark_cpu.py       # CPU ベースライン (C++/Eigen と NumPy) のオーケストレーション
 ├── scripts/
-│   └── conditions.sh          # 実験条件の定義 (run_benchmarks.sh / profile_kernels.sh が共有)
+│   ├── conditions.sh          # 実験条件の定義 (run_benchmarks.sh / profile_kernels.sh が共有)
+│   └── subset-fonts.sh        # スライドのフォントを使う字だけに絞る (make fonts)
 ├── run_benchmarks.sh          # 全条件・全ベンチを一括実行
 ├── profile_kernels.sh         # nsys で実行カーネルを確認
 ├── run_cpu_benchmarks.sh      # CPU ベースラインを一括実行
 ├── run_fortran_benchmarks.sh  # Fortran + NVBLAS の drop-in 実験を一括実行
 ├── Makefile
-└── slides-jp/                 # 発表スライド
+└── slides-jp/                 # 発表スライド (reveal.js、lt-slide-template の水彩の地図帳テーマ)
 ```
 
 ## 参考
