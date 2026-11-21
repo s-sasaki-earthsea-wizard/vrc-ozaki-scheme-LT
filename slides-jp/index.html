@@ -36,7 +36,7 @@
 <h1>ゲーミング GPU で倍精度の行列積を速くする</h1>
 <div class="title-sub">
 <p class="subtitle">〜整数の Tensor Core で FP64 を計算する Ozaki scheme〜</p>
-<p class="byline">さめ ・ VRChat 物理学集会</p>
+<p class="byline">真名海さめ ・ VRChat 物理学集会</p>
 </div>
 </div>
 </div>
@@ -51,7 +51,7 @@ TODO: タイトルのイラスト (16:9、下 192 px は題の帯で隠れる) �
 <div class="profile-container">
 <div class="profile-left">
 
-* さめ(мег-сск)
+* 真名海さめ
   * ⚛️ VRChat物理学集会の主催
   * 🧑‍🎓 社会人学生として通信制大学在学中
 * 得意分野:
@@ -82,7 +82,7 @@ TODO: タイトルのイラスト (16:9、下 192 px は題の帯で隠れる) �
 
 $$\frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla) \mathbf{u} = -\frac{1}{\rho} \nabla p + \nu \nabla^2 \mathbf{u}, \qquad \nabla \cdot \mathbf{u} = 0$$
 
-* 電磁気はマクスウェル、量子はシュレーディンガー方程式
+* 電磁気はマクスウェル方程式、量子はシュレーディンガー方程式
 * 空間を格子に区切り、時間を $\Delta t$ ずつ進めて数値的に解く
 
 </div>
@@ -164,13 +164,13 @@ Quest 単体 (スタンドアロン) で遊んでいる人は別。
 
 * ゲームの描画や物理演算は FP32 (7 桁) が基本
 * AI の学習は FP16 / BF16 が主流。DeepSeek-V3 は FP8 混合精度で学習
-* 推論では重みを 4 bit まで削っても、大きなモデルはほとんど劣化しない
+* 推論では重みを 4 bit まで削っても、大きなモデルはそんなに劣化しない
 
 </div>
 
 <div class="results-box dense nowrap-table">
 <table>
-<tr><th>言語モデルの perplexity (小さいほど良い)</th><th>16 bit</th><th>4 bit</th><th>3 bit</th></tr>
+<tr><th>大規模言語モデルの perplexity (小さいほど良い)</th><th>16 bit</th><th>4 bit</th><th>3 bit</th></tr>
 <tr><td>OPT-175B (1750 億パラメータ)</td><td>8.34</td><td>8.37</td><td>8.68</td></tr>
 <tr><td>OPT-1.3B (13 億パラメータ)</td><td>14.63</td><td>15.47</td><td>20.97</td></tr>
 </table>
@@ -344,14 +344,14 @@ Ozaki-II は Ozaki・Uchino・Imamura (arXiv 2025、IJHPCA 2026)。
   </g>
   <path d="M300,132 L300,146 L851,146 L851,132" fill="none" stroke="#3C5840" stroke-width="2"/>
   <text x="575" y="186" font-size="26" fill="#3C5840" text-anchor="middle" font-weight="700">法の数 (k 個) だけ繰り返す</text>
-  <text x="1026" y="146" font-size="24" fill="#6A5A48" text-anchor="middle">中国剰余定理</text>
+  <text x="1026" y="146" font-size="24" fill="#6A5A48" text-anchor="middle">中国式剰余定理</text>
 </svg>
 
 <div class="simple-box dense">
 
 孫子算経 (3〜5 世紀): 「3 で割ると 2、5 で割ると 3、7 で割ると 2 余る数は?」
 
-* 3 × 5 × 7 = 105 未満に、答えはただ 1 つ: **23** (中国剰余定理)
+* 3 × 5 × 7 = 105 未満に、答えはただ 1 つ: **23** (中国式剰余定理)
 * 行列積の 1 要素 3 × 5 + 4 × 2 も、余りだけで計算できる
 * 3 で割った余りなら 0 × 2 + 1 × 2 = **2**。5 と 7 なら **3** と **2**
 
@@ -482,7 +482,7 @@ performant と eager は N ≥ 2000 では同じ結果。
 
 ---
 
-### 速いのに、誤差は小さい
+### 速くて誤差が小さい
 
 <div class="results-box dense">
 <table>
@@ -498,6 +498,7 @@ performant と eager は N ≥ 2000 では同じ結果。
 
 * Ozaki-II は整数の行列積を**誤差なし**で計算する。誤差が入るのは主に「入力を整数に丸めるとき」と「FP64 に戻すとき」
 * 普通の FP64 は、足し算のたびに丸めが入る
+* **Eigen や Numpy 以上に正確**なことに個人的にとても驚いた！
 
 </div>
 
@@ -615,15 +616,15 @@ Note:
 <div class="results-box nowrap-first">
 <table>
 <tr><th></th><th>大きな密行列積が主</th><th>それ以外</th></tr>
-<tr><td>FP64 が要る</td><td><b>Ozaki の本命</b><br>量子化学 (SCF など)</td><td>速くならない<br>ステンシル、疎行列、cuSOLVER</td></tr>
+<tr><td>FP64 が要る</td><td><b>Ozaki の本命</b><br>量子化学 (SCF など)<br>統計力学 (格子モデルなど)</td><td>速くならない<br>ステンシル、疎行列、cuSOLVER</td></tr>
 <tr><td>FP32 で足りる</td><td>深層学習 (低精度で回す)</td><td>FP32 で回す</td></tr>
 </table>
 </div>
 
 <div class="simple-box dense">
 
-* NVIDIA の量子化学ライブラリ cuEST は、交換項に Ozaki scheme を使う
-* 「FP64 の精度が欲しい」と「FP64 の行列積が欲しい」は別物
+* NVIDIA の量子化学ライブラリ cuEST は Ozaki scheme を使う (らしい)
+* 熱拡散のような典型的な偏微分方程式の数値計算で高パフォーマンスを示したことに可能性を感じている (似たような例題は山ほどあるはず！)
 
 </div>
 
@@ -634,20 +635,21 @@ FP32 で足りる例 (入れるかは要相談): ECMWF は 2021 年の IFS Cycle
 
 ---
 
-### これから
+### これからの期待
 
 <div class="simple-box">
 
-* cuSOLVER (LU・固有値) が対応すれば、密な連立方程式や固有値問題も速くなる余地
-* 大規模な疎行列の直接法も、計算の大半は密なブロックの行列演算
-* INT8 が速くならない世代に向けて、FP8 Tensor Core 版の Ozaki-I も研究されている
+* cuSOLVER (LU・固有値) に対応して、密な連立方程式や固有値問題も速く精度良く計算できれば夢が広がる
+  * [尾崎先生ご自身も研究を始めている！](https://hairdesc.jp/wp-content/uploads/2026/07/第15回20260723_尾崎先生0724差替え.pdf)
+* FP8 Tensor Core のみで完結する Ozaki-I も研究が進んでいる
+  * AI 向け GPU は学習・推論の効率化のため FP8 や FP4 への計算力の集中が進んでいて、INT8 の処理能力は縮小傾向
 
 </div>
 
 <div class="highlight-box">
 
 手元の GeForce で FP64 の行列積が速くなったら、何を計算したい?<br>
-使い道をみんなで考えたい
+みんなのやってみたい使い道を教えて！
 
 </div>
 
@@ -666,6 +668,7 @@ FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 �
 1. GeForce の FP64 は FP32 の 1/64。RTX 5080 でも CPU の 2.5 倍どまり
 2. CUDA 13 の Ozaki scheme (環境変数 1 つ) で、FP64 の行列積が **19 倍** (CPU の 48 倍)。誤差はむしろ小さい
 3. 速くなるのは行列積だけ。**密な行列積が主役の問題**が狙い目
+4. **物理の数値シミュレーションで役に立つ例はいっぱい見つけられそう**、今回は性能評価のために解析解が得られる熱方程式を解いた
 
 </div>
 
@@ -714,6 +717,8 @@ Note:
 5. E. Frantar, S. Ashkboos, T. Hoefler, D. Alistarh, "GPTQ: Accurate post-training quantization for generative pre-trained transformers," *ICLR* (2023). arXiv:2210.17323
 6. DeepSeek-AI, "DeepSeek-V3 Technical Report," arXiv:2412.19437 (2024)
 7. NVIDIA, cuBLAS documentation; CUDA Toolkit Release Notes (13.0 Update 2, 13.4); cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"; HGX Platform
+8. Daichi Mukunoki, DGEMM using FP64 Arithmetic Emulation and FP8 Tensor Cores with Ozaki Scheme, SCA/HPCAsiaWS '26: Proceedings of the Supercomputing Asia and International Conference on High Performance Computing in Asia Pacific Region Workshops
+Pages 303 - 311 (2025), DOI: 10.1145/3784828.3785017
 
 </div>
 
@@ -828,7 +833,7 @@ ADI は 1 ステップの実測 (中央値)。
 
 <div class="simple-box dense">
 
-* コードとデータ: github.com/s-sasaki-earthsea-wizard/vrc-ozaki-schema-LT
+* コードとデータ: [github.com/s-sasaki-earthsea-wizard/vrc-ozaki-scheme-LT](https://github.com/s-sasaki-earthsea-wizard/vrc-ozaki-scheme-LT)
 * `make build && make bench` で全条件を測り直せる (Docker + NVIDIA Container Toolkit)
 
 </div>
