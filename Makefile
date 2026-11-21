@@ -3,7 +3,7 @@
 export HOST_UID := $(shell id -u)
 export HOST_GID := $(shell id -g)
 
-.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench analyze clean-cache
+.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench analyze fonts clean-cache
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -51,6 +51,9 @@ fortran-bench: ## Fortran drop-in: same binary on OpenBLAS / NVBLAS (LD_PRELOAD)
 analyze: ## Regenerate figures and report.md from results/ and results-phi/
 	docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results
 	@if [ -d results-phi ]; then docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results-phi; fi
+
+fonts: ## Subset the vendored slide fonts to the characters used in slides-jp/index.html
+	scripts/subset-fonts.sh
 
 clean-cache: ## Remove cached NumPy reference solutions
 	rm -rf cache

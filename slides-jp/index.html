@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <title>量子航法で超高精度な位置測定　〜冷たい原子がGPSを置き換える？〜</title>
+  <title>TBA</title>
 
   <link rel="stylesheet" href="dist/reset.css">
   <link rel="stylesheet" href="dist/reveal.css">
   <link rel="stylesheet" href="dist/theme/sky.css">
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
   <link rel="stylesheet" href="styles/custom-style.css">
 
-  <!-- Add KaTeX CSS and JS -->
-  <link rel="stylesheet" href="plugin/math/katex.min.css">
+  <!-- KaTeX (the math plugin loads KaTeX itself) -->
   <script src="plugin/math/katex.js"></script>
   <script src="plugin/math/math.js"></script>
 
@@ -24,12 +24,23 @@
 <body>
   <div class="reveal">
     <div class="slides">
-      <section data-markdown data-separator="---">
+      <!-- The separator is "a line holding only ---". A bare "---" would also split on the
+           separator row of a Markdown table. -->
+      <section data-markdown data-separator="\r?\n---\r?\n">
         <textarea data-template>
 
-### TBA
+<!-- .slide: class="title-slide" data-chapter="はじめに" -->
 
-<img src="assets/images/title.png" height="400px">
+<div class="title-plate">
+<img class="title-art" src="assets/images/title.png" alt="タイトルのイラスト">
+<div class="title-band">
+<h1>TBA</h1>
+<div class="title-sub">
+<p class="subtitle">〜TBA〜</p>
+<p class="byline">さめ ・ VRChat 物理学集会</p>
+</div>
+</div>
+</div>
 
 ---
 
@@ -67,8 +78,6 @@
 
 </div>
 
-<br>
-
 <div class="highlight-box">
 
 ※ TBA
@@ -77,15 +86,25 @@
 
 ---
 
+<!-- .slide: data-chapter="本題" -->
 
-
----
-
-### まとめ
+### TBA
 
 <div class="simple-box">
 
-1. TBA 
+* TBA
+
+</div>
+
+---
+
+<!-- .slide: data-chapter="まとめ" -->
+
+### まとめ
+
+<div class="summary-list">
+
+1. TBA
 
 </div>
 
@@ -103,7 +122,13 @@
 
 <img src="assets/images/qrcode.png" width="200px">
 
-					</textarea>
+---
+
+<!-- .slide: class="divider" data-chapter="Appendix" data-appendix="true" -->
+
+## Appendix
+
+        </textarea>
       </section>
     </div>
   </div>
@@ -112,6 +137,7 @@
   <script src="plugin/notes/notes.js"></script>
   <script src="plugin/markdown/markdown.js"></script>
   <script src="plugin/highlight/highlight.js"></script>
+
   <script>
     // More info about initialization & config:
     // - https://revealjs.com/initialization/
@@ -119,9 +145,83 @@
     Reveal.initialize({
       hash: true,
 
+      // 16:9 to fill a VRChat screen. Slides are flex columns with the
+      // heading at the top (see styles/custom-style.css), so no centring.
+      width: 1280,
+      height: 720,
+      center: false,
+      display: 'flex',
+
       // Learn about plugins: https://revealjs.com/plugins/
       plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
     });
+
+    // Footer of every slide: chapter name, progress bar and page number.
+    // A chapter starts at a slide carrying data-chapter and runs up to the
+    // next one. The slide with data-appendix starts the appendix, which shows
+    // its chapter name only; pages are counted over the main part.
+    function buildFooters(deck) {
+      const slides = deck.getSlides();
+      const appendixStart = slides.findIndex((s) => s.hasAttribute('data-appendix'));
+      const mainCount = appendixStart >= 0 ? appendixStart : slides.length;
+
+      const chapters = [];
+      slides.forEach((slide, index) => {
+        if (slide.dataset.chapter) {
+          chapters.push({ name: slide.dataset.chapter, start: index });
+        }
+      });
+      chapters.forEach((chapter, k) => {
+        const next = k + 1 < chapters.length ? chapters[k + 1].start : slides.length;
+        chapter.end = next - 1;
+      });
+      const mainChapters = chapters.filter((c) => c.start < mainCount);
+
+      slides.forEach((slide, index) => {
+        if (slide.classList.contains('title-slide') || slide.classList.contains('divider')) {
+          return;
+        }
+        const chapter = chapters.filter((c) => c.start <= index).pop();
+        const footer = document.createElement('div');
+        footer.className = 'slide-footer';
+
+        const name = document.createElement('span');
+        name.className = 'footer-chapter';
+        name.textContent = chapter ? chapter.name : '';
+        footer.appendChild(name);
+
+        if (index < mainCount) {
+          const bar = document.createElement('span');
+          bar.className = 'footer-progress';
+          bar.setAttribute('aria-hidden', 'true');
+          mainChapters.forEach((c) => {
+            const last = Math.min(c.end, mainCount - 1);
+            const segment = document.createElement('span');
+            segment.style.flex = `${last - c.start + 1} 1 0px`;
+            if (last < index) {
+              segment.className = 'done';
+            } else if (c.start <= index) {
+              segment.className = 'current';
+              const fill = document.createElement('span');
+              fill.style.width = `${(100 * (index - c.start + 1)) / (last - c.start + 1)}%`;
+              segment.appendChild(fill);
+            }
+            bar.appendChild(segment);
+          });
+          footer.appendChild(bar);
+
+          const page = document.createElement('span');
+          page.className = 'footer-page';
+          page.textContent = `${index + 1} / ${mainCount}`;
+          footer.appendChild(page);
+        }
+
+        slide.appendChild(footer);
+      });
+    }
+
+    Reveal.on('ready', () => buildFooters(Reveal));
+
   </script>
 </body>
 
