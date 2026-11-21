@@ -29,8 +29,9 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
 - [x] C++/Eigen の CPU ベースライン: Eigen 比で GPU native 2.5x、GPU Ozaki 48x (DGEMM N=16000)、ADI 39x
 - [x] Fortran + NVBLAS の drop-in: 再ビルドなしで Ozaki-II が動く。OpenBLAS 比 10.4x (N=16000)。
   PCIe x4 のため転送が約 7 割。スライドでは Appendix に置いた
-- [ ] スライド作成: ドラフト (本編 20 枚 + Appendix 7 枚) を `feature/slides-draft` で作成中。
-  表紙のイラスト、cuSOLVER の数値の取り直し、スライド用の図は未着手
+- [ ] スライド作成: ドラフト (本編 24 枚 + Appendix 8 枚) を `feature/slides-draft` で作成中。
+  導入は物理 (偏微分方程式 → 陰解法 → 行列 → GPU と精度 → Ozaki の噂) から入る構成。
+  表紙のイラスト、cuSOLVER の数値の取り直し、スライド用の図、FP32 での ADI の測定は未着手
 
 ## 言語設定
 
