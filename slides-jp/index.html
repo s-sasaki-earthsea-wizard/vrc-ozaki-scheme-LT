@@ -72,29 +72,78 @@ TODO: タイトルのイラスト (16:9、下 192 px は題の帯で隠れる) �
 
 ---
 
-### 今日話すこと
+<!-- .slide: data-chapter="背景" -->
+
+### 物理のシミュレーション = 偏微分方程式を解く
 
 <div class="simple-box">
 
-* ゲーミング GPU (GeForce) の倍精度 (FP64) は遅い
-* CUDA 13 の cuBLAS に入った **Ozaki scheme** で、FP64 の行列積を整数の Tensor Core で計算できるようになった
-* RTX 5080 で測ってみた: 行列積は **19 倍**速く、誤差はむしろ小さい。ただし速くなるのは行列積だけ
+* 流体なら**ナビエ–ストークス方程式** (非圧縮)
+
+$$\frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla) \mathbf{u} = -\frac{1}{\rho} \nabla p + \nu \nabla^2 \mathbf{u}, \qquad \nabla \cdot \mathbf{u} = 0$$
+
+* 電磁気はマクスウェル、量子はシュレーディンガー方程式
+* 空間を格子に区切り、時間を $\Delta t$ ずつ進めて数値的に解く
 
 </div>
 
 <div class="highlight-box">
 
-手元のゲーミング PC で、倍精度の科学計算はどこまで速くなる?
+粘性の項だけ残すと**熱方程式** $\partial u / \partial t = \alpha \nabla^2 u$ (今日解く)
 
 </div>
 
+Note:
+非圧縮 (密度 ρ が一定)。ν は動粘性係数、α は熱拡散率。
+移流項 (u·∇)u と圧力の項を落とすと、速度の各成分が拡散方程式 (熱方程式と同じ形) に従う。
+熱方程式を選んだのは「答えが式で書けるので、丸め誤差だけを測れる」から (「誤差の物差し」のスライド)。
+
 ---
 
-<!-- .slide: data-chapter="背景" -->
+### 陰解法は連立一次方程式になる
 
-### 物理の数値計算と倍精度
+<div class="results-box dense">
+<table>
+<tr><th>熱方程式を差分化</th><th>陽解法</th><th>陰解法</th></tr>
+<tr><td>1 ステップ</td><td>$\mathbf{u}^{n+1} = (I + \alpha \Delta t L) \mathbf{u}^{n}$</td><td>$(I - \alpha \Delta t L) \mathbf{u}^{n+1} = \mathbf{u}^{n}$</td></tr>
+<tr><td>計算</td><td>近くの点を足すだけ</td><td>連立一次方程式を解く</td></tr>
+<tr><td>時間刻み</td><td>$\alpha \Delta t / h^2 \le 1/4$ を破ると発散<br>(格子が細かいほど厳しい)</td><td>大きくとれる</td></tr>
+</table>
+</div>
 
-<div class="results-box">
+<div class="simple-box dense">
+
+* $L$ は差分で書いたラプラシアン (行列)、$h$ は格子の間隔
+* 流体では陽解法でも、圧力の方程式 (連立一次方程式) を毎ステップ解く
+
+</div>
+
+<div class="highlight-box">
+
+物理のシミュレーションの中身は、かなりの部分が**行列の計算**
+
+</div>
+
+Note:
+陽解法は前進オイラー、陰解法は後退オイラーの例。実験では Crank–Nicolson を x と y に分けた ADI を使う。
+陽解法は「条件つき安定」。2D の 5 点差分では α Δt / h² ≤ 1/4 (今回の陽解法は 0.2 で回した)。N = 8192 では Δt = 3.0e-9 になる (Appendix)。
+陰解法でも Δt を大きくすれば時間方向の誤差は増える。安定 = 発散しない、であって、正確かどうかは別。
+移流項の非線形は、Newton 法などで線形化して、結局は連立一次方程式を解く (深入りしない)。
+PDE から出る行列はほとんどが疎行列で、大規模なら反復法 (CG、マルチグリッド) で解く。後の「速くならないもの」につながる。
+
+---
+
+### 手元の GPU は行列計算が得意
+
+<div class="simple-box">
+
+* VRChat を PC で遊んでいるなら、手元にはたぶん GPU がある
+* GPU は大量の掛け算と足し算を同時にこなす。行列の積はその典型で、AI 向けの **Tensor Core** は行列積の専用回路
+* ただし、速いのは**桁の少ない数**の計算
+
+</div>
+
+<div class="results-box dense">
 <table>
 <tr><th>形式</th><th>仮数</th><th>10 進でおよそ</th><th>主な用途</th></tr>
 <tr><td>FP16 / BF16</td><td>11 / 8 bit</td><td>3 / 2 桁</td><td>深層学習</td></tr>
@@ -103,22 +152,82 @@ TODO: タイトルのイラスト (16:9、下 192 px は題の帯で隠れる) �
 </table>
 </div>
 
-<div class="simple-box">
+Note:
+Quest 単体 (スタンドアロン) で遊んでいる人は別。
+仮数のビット数は暗黙の 1 ビットを含む値。
 
-* 長時間の積分、悪条件の連立方程式、量子化学の自己無撞着計算などで FP64 が欲しくなる
-* 偏微分方程式の**陰解法** (Crank–Nicolson など) は、1 ステップごとに連立一次方程式を解く = **行列計算**
+---
+
+### ゲームと AI は低精度で足りる
+
+<div class="simple-box dense">
+
+* ゲームの描画や物理演算は FP32 (7 桁) が基本
+* AI の学習は FP16 / BF16 が主流。DeepSeek-V3 は FP8 混合精度で学習
+* 推論では重みを 4 bit まで削っても、大きなモデルはほとんど劣化しない
+
+</div>
+
+<div class="results-box dense nowrap-table">
+<table>
+<tr><th>言語モデルの perplexity (小さいほど良い)</th><th>16 bit</th><th>4 bit</th><th>3 bit</th></tr>
+<tr><td>OPT-175B (1750 億パラメータ)</td><td>8.34</td><td>8.37</td><td>8.68</td></tr>
+<tr><td>OPT-1.3B (13 億パラメータ)</td><td>14.63</td><td>15.47</td><td>20.97</td></tr>
+</table>
+</div>
+
+<p class="caption">GPTQ で重みを量子化 (Frantar et al., ICLR 2023 の Table 3、WikiText2)</p>
+
+<div class="highlight-box">
+
+16 桁 (FP64) が要る場面は、ほとんどない
 
 </div>
 
 Note:
-仮数のビット数は暗黙の 1 ビットを含む値。
-陰解法 → 行列計算、の流れを最初に置いておくと、後半の熱方程式の話につながる。
+GPTQ の Table 3 (OPT、WikiText2)。単純な丸め (RTN) だと、OPT-175B は 4 bit で 10.54、3 bit で 7.3e3 と壊れる。
+小さいモデルほど劣化が大きい (OPT-1.3B)。「劣化しない」ではなく「大きなモデルなら劣化は小さい」。
+DeepSeek-V3 Technical Report (arXiv:2412.19437) の Appendix B.1: 約 16B (1.33T トークン) と約 230B (約 0.9T トークン) の MoE で FP8 と BF16 の学習曲線を比べ、相対誤差は 0.25% 未満。671B の本番の学習そのものを比べたものではない。
+話すなら: Unity の座標 (Vector3) は FP32。原点から 10 km で位置の刻みは約 1 mm (2^-10 m)、100 km で約 8 mm (2^-7 m)。広いワールドの端で物が震えるのはこれ。
+確認日 2026-11-21。
+
+---
+
+### 科学計算は FP32 では足りないことが多い
+
+<div class="simple-box dense">
+
+* 連立方程式の解の誤差は、目安で $\kappa$ (条件数) × $u$ (丸めの単位)
+* ポアソン方程式の $\kappa$ は、格子を細かくすると $1/h^2$ に比例して大きくなる
+* 長時間の積分や量子化学の自己無撞着計算でも FP64 が欲しくなる
+
+</div>
+
+<div class="results-box dense nowrap-table">
+<table>
+<tr><th>1000 × 1000 格子のポアソン方程式 ($\kappa \approx 4 \times 10^5$)</th><th>$\kappa u$</th></tr>
+<tr><td>FP32 ($u \approx 6 \times 10^{-8}$)</td><td>$2 \times 10^{-2}$ (2 桁も残らない)</td></tr>
+<tr><td>FP64 ($u \approx 1.1 \times 10^{-16}$)</td><td>$5 \times 10^{-11}$ (10 桁残る)</td></tr>
+</table>
+</div>
+
+<div class="highlight-box">
+
+物理のシミュレーションは FP64 が標準
+
+</div>
+
+Note:
+κ は「入力の小さな誤差が、答えで何倍に膨らむか」。κu は後退安定な解法での目安 (上限側の見積もり) で、実際の誤差は右辺によってはもっと小さい。
+κ は境界で 0 (Dirichlet) の 5 点差分ラプラシアン、1 辺 1000 点。固有値から κ = 4.06e5 (≈ (4/π²)(n+1)²、1 次元でも同じ値)。NumPy で計算した。
+u は FP32 で 2^-24、FP64 で 2^-53。
+FP32 で解いて FP64 で残差を補正する混合精度の反復改良もある。「FP32 では絶対に無理」ではない。
 
 ---
 
 ### GeForce の FP64 は遅い
 
-<div class="results-box">
+<div class="results-box dense">
 <table>
 <tr><th>FP64 の行列積 (N = 16000)</th><th>速さ</th></tr>
 <tr><td>CPU: Core Ultra 9 285H (C++ / Eigen、14 スレッド)</td><td>0.32 TFLOPS</td></tr>
@@ -126,22 +235,54 @@ Note:
 </table>
 </div>
 
-<div class="simple-box">
+<div class="simple-box dense">
 
 * GeForce の FP64 演算器は FP32 の **1/64** しかない (ゲームや AI は FP64 を使わない)
-* FP64 が速い GPU は、データセンター向けの一部の高価なもの
+* FP64 が速いのは、データセンター向けの高価な GPU
+* その最新世代 B300 でも、FP64 は前の B200 の約 1/30 に削られた
 
 </div>
 
 <div class="highlight-box">
 
-ゲーミング GPU を買っても、倍精度は CPU の **2.5 倍**どまり
+「速いが 7 桁」の FP32 か、<br>「16 桁だが CPU の **2.5 倍**どまり」の FP64 か
 
 </div>
 
 Note:
 数値は results/ (2026-10-06) の DGEMM、φ = 0.5、中央値。CPU は 6 / 14 / 16 スレッドのうち最速の 14 スレッド。
 1/64 は CUDA Programming Guide の表 (compute capability 12.x で FP32 : FP64 = 64 : 1、Tensor Core 以外のスループット)。
+B300: NVIDIA の HGX のページの表で、FP64/FP64 Tensor Core は HGX B300 が 10 TFLOPS、HGX B200 が 296 TFLOPS (どちらも 8 GPU のボード)。1 GPU あたりの値はページにない (8 で割ると 1.25 / 37 TFLOPS)。1/30 は 10 / 296 のボード同士の比。確認日 2026-11-21。
+GeForce でも FP64 の答えは正しく出る。問題は精度ではなく速さ。
+
+---
+
+### 「尾崎スキーム」の噂
+
+<div class="simple-box">
+
+* 芝浦工大の尾崎克久先生らが考案した計算法 (**Ozaki scheme**)
+* CUDA 13 の cuBLAS に入って、GeForce でも FP64 の行列積を**速く、しかも高精度に**計算できるようになった……らしい
+
+</div>
+
+<div class="highlight-box">
+
+本当? 手元の RTX 5080 で確かめた
+
+</div>
+
+<div class="simple-box dense">
+
+* 行列積そのものと、答えが式で書ける 2D 熱方程式を解く
+* GPU (Ozaki なし / あり) と CPU で、速さと精度を比べる
+
+</div>
+
+Note:
+所属は KAKEN の研究者情報 (2020〜2025 年度の課題) で芝浦工業大学 システム理工学部 教授。確認日 2026-11-21。
+Ozaki-I は Ozaki・Ogita・Oishi・Rump (2012)、Ozaki-II は Ozaki・Uchino・Imamura (2025)。
+「答えが式で書ける」は PDE の解析解ではなく、差分スキームの離散厳密解。比べると丸め誤差だけが残る (離散化誤差は約 1e-5 で、丸め誤差よりずっと大きい)。
 
 ---
 
@@ -554,14 +695,28 @@ FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 �
 2. H. Ootomo, K. Ozaki, R. Yokota, "DGEMM on integer matrix multiplication unit," *IJHPCA* **38**, 297–313 (2024). doi:10.1177/10943420241239588
 3. K. Ozaki, Y. Uchino, T. Imamura, "Ozaki Scheme II: A GEMM-oriented emulation of floating-point matrix multiplication using an integer modular technique," *IJHPCA* (2026). doi:10.1177/10943420261467787 / arXiv:2504.08009
 4. D. Mukunoki, "DGEMM without FP64 Arithmetic - Using FP64 Emulation and FP8 Tensor Cores with Ozaki Scheme," arXiv:2508.00441 (2025)
-5. NVIDIA, cuBLAS documentation; CUDA Toolkit Release Notes (13.0 Update 2, 13.4)
-6. NVIDIA, cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"
 
 </div>
 
 Note:
 確認日 2026-11-21。1 と 2・3 の雑誌版は出版社ページに届かず、Crossref の DOI メタデータで確認した。
-URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cuest/gemm_emulation.html 、docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html
+
+---
+
+### 参考文献 (つづき)
+
+<div class="ref-list">
+
+5. E. Frantar, S. Ashkboos, T. Hoefler, D. Alistarh, "GPTQ: Accurate post-training quantization for generative pre-trained transformers," *ICLR* (2023). arXiv:2210.17323
+6. DeepSeek-AI, "DeepSeek-V3 Technical Report," arXiv:2412.19437 (2024)
+7. NVIDIA, cuBLAS documentation; CUDA Toolkit Release Notes (13.0 Update 2, 13.4); cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"; HGX Platform
+
+</div>
+
+Note:
+確認日 2026-11-21。
+5 は ar5iv の HTML 版で Table 3、6 は arXiv の HTML 版で Appendix B.1 を確認した。
+URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cuest/gemm_emulation.html 、docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html 、nvidia.com/en-us/data-center/hgx/
 
 ---
 
