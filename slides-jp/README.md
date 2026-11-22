@@ -20,7 +20,8 @@ npm install
 
 ### スライド作成
 
-リポジトリ直下で次を流すと、`slides-jp/` を Python の http.server で配信する (npm は要らない):
+リポジトリ直下で次を流すと、`slides-jp/` を Python の http.server で配信する (npm は要らない)。
+配信は `scripts/serve-slides.py` で、`Cache-Control: no-store` を返すので、差し替えた画像やフォントも普通の再読み込みで反映される:
 
 ```bash
 make slides                        # http://localhost:8000

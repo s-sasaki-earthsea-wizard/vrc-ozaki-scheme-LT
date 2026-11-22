@@ -74,7 +74,9 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
 - **表紙のイラスト** は `slides-jp/assets/images/title.png` (16:9、画像生成 AI で作成)。絵は題の帯より上 (1280×528) に cover で敷くので、16:9 なら 192 px 切れる。
   どこを見せるかは `index.html` の img の `object-position` で選ぶ (今は上を 90 px 切り、手元の GPU を見せている)。
   題を `<br>` で 2 行にすると、帯に収まるよう 44 px に縮む (`.title-band h1:has(br)`)
-- 手元での表示は `make slides` (http://localhost:8000、`SLIDES_PORT` / `SLIDES_BIND` で変更)
+- 手元での表示は `make slides` (http://localhost:8000、`SLIDES_PORT` / `SLIDES_BIND` で変更)。
+  `scripts/serve-slides.py` が `Cache-Control: no-store` を返すので、差し替えた画像も普通の再読み込みで出る
+  (`python3 -m http.server` だと、ブラウザが古い画像をキャッシュから出し続ける)
 - フォントは `slides-jp/vendor/fonts` に同梱したサブセット。**スライドを書いたら `make fonts` を流す** (`scripts/subset-fonts.sh`)
 - スライドの区切りは「`---` だけの行」。発表者ノートは `Note:` の行から下 (`note:` / `notes:` という文字列を本文に書かない)
 - 数式は KaTeX (`$...$`)。jsDelivr から読み、版は `Reveal.initialize` の `katex: { version: '0.19.1' }` で固定している。`\{`、`\,`、`\|` を使わない。下付き `_` を 2 つ以上含む数式は空行を挟まない `<div>` で囲む。

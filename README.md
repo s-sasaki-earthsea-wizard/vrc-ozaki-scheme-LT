@@ -284,7 +284,7 @@ make cusolver-bench # cuSOLVER (LU・Cholesky・QR・固有値) と cuBLAS Level
 make adi-quick      # ADI のソルバ比較を小サイズで動作確認 (results-quick/adi/)
 make adi-bench      # ADI を伝播行列 / 密な LU / 三重対角ソルバで比較、nsys まで (results-adi/)
 make analyze      # results/ と results-phi/ から図と report.md を再生成
-make slides       # スライドを http://localhost:8000 で表示 (python3 の http.server)
+make slides       # スライドを http://localhost:8000 で表示 (ブラウザにキャッシュさせない http.server)
 make fonts        # スライド (slides-jp/index.html) で使う字にフォントを絞り直す (uv が必要)
 ```
 
@@ -380,6 +380,7 @@ NumPy の参照解は `cache/` にキャッシュされ、全条件で同じも�
 │   └── benchmark_cpu.py       # CPU ベースライン (C++/Eigen と NumPy) のオーケストレーション
 ├── scripts/
 │   ├── conditions.sh          # 実験条件の定義 (run_benchmarks.sh / profile_kernels.sh が共有)
+│   ├── serve-slides.py        # スライドをキャッシュさせずに配信する (make slides)
 │   └── subset-fonts.sh        # スライドのフォントを使う字だけに絞る (make fonts)
 ├── run_benchmarks.sh          # 全条件・全ベンチを一括実行
 ├── profile_kernels.sh         # nsys で実行カーネルを確認
