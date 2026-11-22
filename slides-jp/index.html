@@ -498,7 +498,7 @@ performant と eager は N ≥ 2000 では同じ結果。
 
 * Ozaki-II は整数の行列積を**誤差なし**で計算する。誤差が入るのは主に「入力を整数に丸めるとき」と「FP64 に戻すとき」
 * 普通の FP64 は、足し算のたびに丸めが入る
-* **Eigen や Numpy 以上に正確**なことに個人的にとても驚いた！
+* **Eigen や NumPy 以上に正確**なことに個人的にとても驚いた！
 
 </div>
 
@@ -668,7 +668,7 @@ FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 �
 1. GeForce の FP64 は FP32 の 1/64。RTX 5080 でも CPU の 2.5 倍どまり
 2. CUDA 13 の Ozaki scheme (環境変数 1 つ) で、FP64 の行列積が **19 倍** (CPU の 48 倍)。誤差はむしろ小さい
 3. 速くなるのは行列積だけ。**密な行列積が主役の問題**が狙い目
-4. **物理の数値シミュレーションで役に立つ例はいっぱい見つけられそう**、今回は性能評価のために解析解が得られる熱方程式を解いた
+4. **物理の数値シミュレーションで役に立つ例はいっぱい見つけられそう**、今回は性能評価のために離散厳密解が得られる熱方程式を解いた
 
 </div>
 
@@ -717,8 +717,6 @@ Note:
 5. E. Frantar, S. Ashkboos, T. Hoefler, D. Alistarh, "GPTQ: Accurate post-training quantization for generative pre-trained transformers," *ICLR* (2023). arXiv:2210.17323
 6. DeepSeek-AI, "DeepSeek-V3 Technical Report," arXiv:2412.19437 (2024)
 7. NVIDIA, cuBLAS documentation; CUDA Toolkit Release Notes (13.0 Update 2, 13.4); cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"; HGX Platform
-8. Daichi Mukunoki, DGEMM using FP64 Arithmetic Emulation and FP8 Tensor Cores with Ozaki Scheme, SCA/HPCAsiaWS '26: Proceedings of the Supercomputing Asia and International Conference on High Performance Computing in Asia Pacific Region Workshops
-Pages 303 - 311 (2025), DOI: 10.1145/3784828.3785017
 
 </div>
 
