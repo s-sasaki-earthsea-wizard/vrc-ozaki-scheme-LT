@@ -23,6 +23,8 @@ cuSOLVER math mode set by the benchmark to follow the cuBLAS environment variabl
 
 ## Headline: time per step
 
+![Time per ADI step against N for each solver](figures/adi_time_per_step.png)
+
 *tridiagonal* = fastest of the three tridiagonal solvers, *cuSPARSE* = faster of the two cuSPARSE solvers
 (both cuda13-native). *Ozaki* = faster of `cuda13-emu` and `cuda13-emu-eager`. The ratio columns say how many
 times slower (above 1x) or faster (below 1x) the dense Ozaki runs are.

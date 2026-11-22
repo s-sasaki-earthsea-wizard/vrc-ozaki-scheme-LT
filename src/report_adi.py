@@ -3,6 +3,8 @@
 Inputs:
     <dir>/<condition>/adi.json          src/benchmark_adi.py
     <dir>/nsys/*_nvtx_kern_sum.csv      nsys stats --report nvtx_kern_sum
+
+Also writes <dir>/figures/adi_time_per_step.png (skipped if matplotlib is missing).
 """
 
 from __future__ import annotations
@@ -137,6 +139,76 @@ def setup_section(luts: dict, sizes: list[int]) -> str:
     return "\n".join(lines)
 
 
+def plot_time_per_step(luts: dict, sizes: list[int], payloads: dict, out: Path) -> bool:
+    """Log-log plot of the time per step of every solver family against N."""
+    try:
+        from analyze_results import (
+            REFERENCE_GRAY,
+            SERIES_COLORS,
+            SURFACE,
+            TEXT_SECONDARY,
+            finish,
+            legend,
+            new_figure,
+            set_size_ticks,
+        )
+    except ImportError:
+        return False
+
+    blue, orange, green, purple = SERIES_COLORS[0], SERIES_COLORS[1], SERIES_COLORS[2], SERIES_COLORS[6]
+    # Colour = arithmetic (FP64 / Ozaki / no cuBLAS), line style and marker = solver.
+    series = [
+        ("dense LU solve, FP64", lambda n: per_step(luts, "cuda13-native", "dense-lu", n), blue, "s", "--"),
+        ("dense propagator, FP64", lambda n: per_step(luts, "cuda13-native", "propagator", n), blue, "o", "-"),
+        ("dense LU solve, Ozaki", lambda n: best(luts, EMU, ["dense-lu"], n)[0], orange, "s", "--"),
+        ("dense propagator, Ozaki", lambda n: best(luts, EMU, ["propagator"], n)[0], orange, "o", "-"),
+        (
+            "tridiagonal, cuSPARSE gtsv2",
+            lambda n: best(luts, ["cuda13-native"], [s for s in TRIDIAG if "cusparse" in s], n)[0],
+            purple,
+            "D",
+            ":",
+        ),
+        ("tridiagonal, custom Thomas kernel", lambda n: per_step(luts, "cuda13-native", "tridiag-thomas", n), green, "^", "-"),
+    ]
+    fig, (ax,) = new_figure(1)
+    fig.set_size_inches(7.6, 5.2)
+    for label, value, color, marker, style in series:
+        ys = [value(n) for n in sizes]
+        if any(y is None for y in ys):
+            continue
+        ax.plot(
+            sizes, [y * 1e3 for y in ys], color=color, marker=marker, linestyle=style, linewidth=2,
+            markersize=7, markeredgecolor=SURFACE, markeredgewidth=1.5, label=label,
+        )  # fmt: skip
+    # N^2 slope guide through the largest size of the Thomas kernel. The FP64 propagator
+    # itself follows N^3 closely, so a separate N^3 guide would only hide it.
+    n0 = sizes[-1]
+    y0 = series[-1][1](n0)
+    if y0 is not None:
+        guide = [y0 * 1e3 * (n / n0) ** 2 for n in sizes]
+        ax.plot(sizes, guide, color=REFERENCE_GRAY, linewidth=1, linestyle=(0, (1, 3)))
+        ax.annotate(
+            "slope N^2 (the dense FP64 lines follow N^3)", (sizes[0], guide[0]), textcoords="offset points",
+            xytext=(6, -11), color=REFERENCE_GRAY, fontsize=8,
+        )  # fmt: skip
+    set_size_ticks(ax, sizes)
+    ax.set_yscale("log")
+    ax.set_xlabel("grid size N (N x N unknowns)")
+    ax.set_ylabel("time per ADI step [ms]")
+    legend(ax)
+    env = payloads["cuda13-native"]["env"]
+    stamp = payloads["cuda13-native"]["env"]["timestamp"][:10]
+    fig.text(
+        0.99, 0.01, f"results-adi ({stamp}), {env['gpu_name']}, CUDA {env.get('cuda_toolkit')}, "
+        f"driver {env.get('nvidia_smi', {}).get('driver_version', '?')}; Ozaki = faster of performant / eager",
+        ha="right", va="bottom", color=TEXT_SECONDARY, fontsize=7,
+    )  # fmt: skip
+    out.parent.mkdir(parents=True, exist_ok=True)
+    finish(fig, out, "2D heat equation, one ADI step: same scheme, different solvers")
+    return True
+
+
 def kernel_section(path: Path) -> str:
     ranges = load_kernel_ranges(path)
     lines = [
@@ -164,6 +236,13 @@ def main() -> None:
     sizes = sorted({n for lut in luts.values() for _, n in lut})
     modes = ", ".join(f"{c}: {v['cusolver_math_mode']['mode']}" for c, v in payloads.items())
 
+    figure = d / "figures" / "adi_time_per_step.png"
+    figure_lines = (
+        ["![Time per ADI step against N for each solver](figures/adi_time_per_step.png)", ""]
+        if plot_time_per_step(luts, sizes, payloads, figure)
+        else []
+    )
+
     parts = [
         "# ADI for the 2D heat equation: dense propagator, dense LU and tridiagonal solvers",
         "",
@@ -187,6 +266,7 @@ def main() -> None:
         "",
         "## Headline: time per step",
         "",
+        *figure_lines,
         "*tridiagonal* = fastest of the three tridiagonal solvers, *cuSPARSE* = faster of the two cuSPARSE solvers",
         "(both cuda13-native). *Ozaki* = faster of `cuda13-emu` and `cuda13-emu-eager`. The ratio columns say how many",
         "times slower (above 1x) or faster (below 1x) the dense Ozaki runs are.",

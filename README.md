@@ -236,6 +236,8 @@ cuSOLVER のハンドルごとに `cusolverDnSetMathMode(handle, CUSOLVER_FP64_E
 - 配列は C 順のまま。転置は直前の積に畳み込み (転置した GEMM のオペランド、または結果を転置して書くカーネル)、転置のコピーはしない
 - `tridiag-thomas` は素直な実装で、チューニングはしていない (係数が全線で共通なことだけ使っている)
 
+![Time per ADI step against N for each solver](results-adi/figures/adi_time_per_step.png)
+
 結果 (RTX 5080、ドライバ 595.99.02、2026-11-22)。1 ステップの時間 [ms]、20 ステップ × 3 回の中央値。Ozaki は `cuda13-emu` と `cuda13-emu-eager` の速いほう。
 
 | N | 三重対角 (Thomas) | 三重対角 (cuSPARSE の速いほう) | 伝播行列 FP64 | 伝播行列 Ozaki | 密な LU FP64 | 密な LU Ozaki |
@@ -335,6 +337,7 @@ results-cusolver/
 results-adi/
 ├── <condition>/      # env.json、adi.json、*.log
 ├── nsys/             # *.nsys-rep と NVTX 範囲 (ソルバ) ごとのカーネル集計 CSV
+├── figures/adi_time_per_step.png   # ソルバごとの 1 ステップの時間 (両対数)
 └── report.md         # ソルバ × 条件の時間、丸め誤差、LU の内訳、カーネルの表
 ```
 
