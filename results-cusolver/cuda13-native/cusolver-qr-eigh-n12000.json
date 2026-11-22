@@ -1,0 +1,293 @@
+{
+  "benchmark": "cusolver",
+  "condition": "cuda13-native",
+  "env": {
+    "condition": "cuda13-native",
+    "timestamp": "2026-11-22T09:32:15.817712+00:00",
+    "hostname": "0e6d1e98c71d",
+    "python": "3.12.3",
+    "numpy": "2.2.6",
+    "numpy_blas": {
+      "name": "scipy-openblas",
+      "found": true,
+      "version": "0.3.29",
+      "detection method": "pkgconfig",
+      "include directory": "/opt/_internal/cpython-3.12.7/lib/python3.12/site-packages/scipy_openblas64/include",
+      "lib directory": "/opt/_internal/cpython-3.12.7/lib/python3.12/site-packages/scipy_openblas64/lib",
+      "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+      "pc file directory": "/project/.openblas"
+    },
+    "cupy": "14.2.0",
+    "cuda_runtime": "13.2",
+    "cuda_toolkit": "13.4.2",
+    "cuda_driver_api": "13.2",
+    "cublas_version": 130800,
+    "libcublas_loaded": [
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcublas.so.13.8.0.4",
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcublasLt.so.13.8.0.4"
+    ],
+    "libcuda_loaded": [
+      "/usr/lib/x86_64-linux-gnu/libcuda.so.595.99.02"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5080",
+    "compute_capability": "12.0",
+    "gpu_memory_gib": 15.47,
+    "nvidia_smi": {
+      "name": "NVIDIA GeForce RTX 5080",
+      "driver_version": "595.99.02",
+      "clocks.sm": "630 MHz",
+      "clocks.max.sm": "3090 MHz",
+      "clocks.mem": "14801 MHz",
+      "temperature.gpu": "46",
+      "power.draw": "34.98 W",
+      "power.limit": "360.00 W",
+      "persistence_mode": "Disabled"
+    },
+    "emulation_env": {
+      "CUBLAS_EMULATE_DOUBLE_PRECISION": "0",
+      "CUBLAS_EMULATION_STRATEGY": null,
+      "CUBLAS_FIXEDPOINT_EMULATION_MANTISSA_BIT_COUNT": null,
+      "CUBLAS_EMULATION_SPECIAL_VALUES_SUPPORT_MASK": null
+    },
+    "cpu_count": 16,
+    "cusolver_version": 12304,
+    "libcusolver_loaded": [
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcusolver.so.12.3.4.7"
+    ]
+  },
+  "config": {
+    "sizes": [
+      12000
+    ],
+    "routines": [
+      "qr",
+      "eigh"
+    ],
+    "modes": [
+      "default",
+      "emu-performant",
+      "emu-eager",
+      "default-again"
+    ],
+    "qr_eigh_max_n": 12000,
+    "phi": 0.5,
+    "warmup": 1,
+    "repeats": 5,
+    "repeats_large": 3,
+    "seed": 20261006,
+    "profile": null,
+    "output": "results-cusolver/cuda13-native/cusolver-qr-eigh-n12000.json"
+  },
+  "modes": {
+    "default": {
+      "math_mode": 1,
+      "emulation_strategy": 0
+    },
+    "emu-performant": {
+      "math_mode": 4,
+      "emulation_strategy": 1
+    },
+    "emu-eager": {
+      "math_mode": 4,
+      "emulation_strategy": 2
+    },
+    "default-again": {
+      "math_mode": 1,
+      "emulation_strategy": 0
+    }
+  },
+  "results": [
+    {
+      "n": 12000,
+      "routine": "qr",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        6.3987607421875,
+        6.40668798828125,
+        6.39542041015625
+      ],
+      "median_s": 6.3987607421875,
+      "min_s": 6.39542041015625,
+      "max_s": 6.40668798828125,
+      "std_s": 0.005787304575719509,
+      "accuracy": {
+        "recon_rel_err": 4.304299747813782e-15,
+        "orth_err": 5.097608006203756e-15,
+        "recon_rel_err_in_u": 38.769685480690136
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "qr",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        3.880169189453125,
+        3.880910888671875,
+        3.880962646484375
+      ],
+      "median_s": 3.880910888671875,
+      "min_s": 3.880169189453125,
+      "max_s": 3.880962646484375,
+      "std_s": 0.0004439164078008293,
+      "accuracy": {
+        "recon_rel_err": 3.101094863868833e-15,
+        "orth_err": 5.101009377230149e-15,
+        "recon_rel_err_in_u": 27.93217934672047
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "qr",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        2.6824765625,
+        2.682211181640625,
+        2.681411865234375
+      ],
+      "median_s": 2.682211181640625,
+      "min_s": 2.681411865234375,
+      "max_s": 2.6824765625,
+      "std_s": 0.0005542132539694961,
+      "accuracy": {
+        "recon_rel_err": 2.2501762296462366e-15,
+        "orth_err": 3.5003813266356333e-15,
+        "recon_rel_err_in_u": 20.267785658705478
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "qr",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        6.4125302734375,
+        6.37564306640625,
+        6.37805322265625
+      ],
+      "median_s": 6.37805322265625,
+      "min_s": 6.37564306640625,
+      "max_s": 6.4125302734375,
+      "std_s": 0.020636302665806208,
+      "accuracy": {
+        "recon_rel_err": 4.304299747813782e-15,
+        "orth_err": 5.097608006203756e-15,
+        "recon_rel_err_in_u": 38.769685480690136
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "eigh",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        12.0247841796875,
+        12.020560546875,
+        12.02122265625
+      ],
+      "median_s": 12.02122265625,
+      "min_s": 12.020560546875,
+      "max_s": 12.0247841796875,
+      "std_s": 0.002271633485518115,
+      "accuracy": {
+        "recon_rel_err": 7.906854271659562e-15,
+        "orth_err": 1.019723710786753e-14,
+        "recon_rel_err_in_u": 71.21861190303764
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "eigh",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        10.2790625,
+        10.277578125,
+        10.28401953125
+      ],
+      "median_s": 10.2790625,
+      "min_s": 10.277578125,
+      "max_s": 10.28401953125,
+      "std_s": 0.0033731103952590407,
+      "accuracy": {
+        "recon_rel_err": 8.979152983957806e-15,
+        "orth_err": 1.0909673178511517e-14,
+        "recon_rel_err_in_u": 80.8770200653101
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "eigh",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        8.5558935546875,
+        8.5435703125,
+        8.5479619140625
+      ],
+      "median_s": 8.5479619140625,
+      "min_s": 8.5435703125,
+      "max_s": 8.5558935546875,
+      "std_s": 0.006245790386328358,
+      "accuracy": {
+        "recon_rel_err": 8.887676857942296e-15,
+        "orth_err": 1.0869557876038984e-14,
+        "recon_rel_err_in_u": 80.05307637123661
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "eigh",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        12.0234951171875,
+        12.0469130859375,
+        12.053673828125
+      ],
+      "median_s": 12.0469130859375,
+      "min_s": 12.0234951171875,
+      "max_s": 12.053673828125,
+      "std_s": 0.015837000395440334,
+      "accuracy": {
+        "recon_rel_err": 7.906854271659562e-15,
+        "orth_err": 1.019723710786753e-14,
+        "recon_rel_err_in_u": 71.21861190303764
+      }
+    }
+  ]
+}
