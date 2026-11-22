@@ -574,8 +574,8 @@ M = (I − aL)^−1 (I + aL)、a = α dt / 2 を事前に計算しておく。x 
 <table>
 <tr><th>cuSOLVER (Ozaki / GPU FP64)</th><th>N = 4096</th><th>8192</th><th>12000</th></tr>
 <tr><td>LU 分解 (連立一次方程式)</td><td>2.0 倍</td><td>3.5 倍</td><td><b>4.9 倍</b></td></tr>
-<tr><td>QR 分解</td><td>1.3 倍</td><td>2.0 倍</td><td>-</td></tr>
-<tr><td>対称行列の固有値</td><td>1.2 倍</td><td>1.3 倍</td><td>-</td></tr>
+<tr><td>QR 分解</td><td>1.3 倍</td><td>2.0 倍</td><td>2.4 倍</td></tr>
+<tr><td>対称行列の固有値</td><td>1.2 倍</td><td>1.3 倍</td><td>1.4 倍</td></tr>
 <tr><td>Cholesky 分解</td><td>1.1 倍</td><td>1.0 倍</td><td>1.0 倍</td></tr>
 </table>
 </div>
@@ -595,8 +595,9 @@ N = 12000 の連立一次方程式が 1.53 s → **0.31 s**
 
 Note:
 results-cusolver/ (2026-11-22、ドライバ 595.99.02。ほかの結果は 590.48.01)。CuPy の cupy.linalg を、同じプロセスの中で math mode を切り替えて測った。
-倍率は performant と eager の速いほう (LU と Cholesky は performant、QR と固有値の 8192 は eager)。中央値、LU と Cholesky は 5 回、QR と固有値は 3 回。
-LU の後退誤差は N = 12000 で 5.3e-15 (FP64) と 5.4e-15 (Ozaki)。
+倍率は performant と eager の速いほう (LU は performant。QR は 4096 が performant、8192 と 12000 が eager。固有値は eager。Cholesky は 12000 だけ eager で、performant との差は 0.05%)。中央値、LU と Cholesky は 5 回、QR と固有値は 3 回。
+QR と固有値の N = 12000 は同じ日の別の実行 (results-cusolver/cuda13-native/cusolver-qr-eigh-n12000.json、同じイメージ・ドライバ・乱数の種で、入力の行列は LU の N = 12000 と同じ)。
+LU の後退誤差は N = 12000 で 5.3e-15 (FP64) と 5.4e-15 (Ozaki)。N = 12000 の再構成誤差は、QR が 39u (FP64) と 20u (Ozaki eager)、固有値が 71u と 80u (u = 2^-53)。
 10 月の予備測定は cuBLAS の環境変数だけで切り替えていて、「変わらない」と見誤っていた。cuSOLVER のドキュメントに「cuBLAS の環境変数は cuSOLVER の中の cuBLAS ハンドルに効かない」とある。
 CuPy には math mode の API がないので、CuPy の cuSOLVER ハンドルに ctypes で設定した (Appendix)。
 PDE から出る行列は疎行列なので、この密な LU がそのまま効くのは境界要素法などの密行列の問題。
@@ -634,7 +635,7 @@ cuSOLVER は N = 2048〜12000、results-cusolver/ (2026-11-22)。
 
 <div class="simple-box dense">
 
-* ADI の密行列 M は、行列積を取り出すための**模型**。実際の陰解法は $O(N^2)$ の三重対角ソルバで解く。測ると N = 8192 で 16 ms、**Ozaki の密行列 (170 ms) より 11 倍速い** (FP64 のままなら 171 倍)
+* ADI の密行列 M は、行列積を取り出すための**模型**。実際の陰解法は $O(N^2)$ の三重対角ソルバで解く。測ると N = 8192 で 16 ms、**Ozaki の密行列 (170 ms) より 11&nbsp;倍速い** (FP64 のままなら 171 倍)
   * 問題の構造に合わせたソルバを使えば、必ずしも Ozaki が優位とは限らない。Ozaki はあくまで**密行列の積 (DGEMM) が得意な手法**
 * 熱方程式は離散化誤差 (約 $10^{-5}$) が丸め誤差 (約 $10^{-13}$) よりずっと大きい。**この問題自体は FP32 で足りる**。ここでは「丸め誤差だけを測る物差し」として使った
 * RTX 5080 1 枚だけ。計測回数は少なめ (行列積 5 回、熱方程式 3 回)、GPU クロックは固定していない
@@ -679,7 +680,7 @@ FP32 で足りる例 (入れるかは要相談): ECMWF は 2021 年の IFS Cycle
 
 <div class="simple-box">
 
-* cuSOLVER の LU は今でも 4.9 倍。Cholesky や固有値も速くなれば、密な連立方程式や固有値問題に夢が広がる
+* cuSOLVER の LU は今でも 4.9 倍。Cholesky (1.0 倍) や固有値 (1.4 倍) も LU 並みに速くなれば、密な連立方程式や固有値問題に夢が広がる
   * [尾崎先生ご自身も研究を始めている！](https://hairdesc.jp/wp-content/uploads/2026/07/第15回20260723_尾崎先生0724差替え.pdf)
 * FP8 Tensor Core のみで完結する Ozaki-I も研究が進んでいる
   * AI 向け GPU は学習・推論の効率化のため FP8 や FP4 への計算力の集中が進んでいて、INT8 の処理能力は縮小傾向
