@@ -72,7 +72,7 @@
 開発機での確認状況 (2026-10-06):
 
 - GPU: GeForce RTX 5080 16 GB (Blackwell, sm_120)
-- Driver: 590.48.01 (CUDA 13.1 世代)
+- Driver: 590.48.01 (CUDA 13.1 世代)。cuSOLVER の実験 (2026-11-22) は 595.99.02
 - Docker 29.2 / Compose v5 / NVIDIA Container Toolkit 1.18.2
 - CPU: Core Ultra 9 285H (NumPy 参照計算用)
 
@@ -117,6 +117,7 @@
 | CPU (C++/Eigen, 14 スレッド) | DGEMM 0.30–0.36 TFLOPS、OpenBLAS は 0.21–0.38 TFLOPS。Eigen 比で GPU native は **2.2–2.6x**、GPU Ozaki は **16–48x** (φ 掃引を含む) |
 | CPU の PDE | ADI: GPU Ozaki が Eigen 比 11.7–39x。FTCS: GPU は Ozaki と無関係に 6.5–18x (メモリ帯域の差) |
 | CPU の精度 | Eigen / OpenBLAS の scaled err は 0.2–0.9u (φ=0.5)、N=8000・φ=4 で 25–27u。Ozaki (0.05–1.9u) はどちらより小さい |
+| cuSOLVER (math mode を API で指定) | LU 1.4–4.9x (N=2048–12000)、QR 最大 2.0x、eigh 最大 1.3x、Cholesky 1.0–1.1x。cuBLAS の環境変数では切り替わらない (2026-11-22、[results-cusolver/report.md](results-cusolver/report.md)) |
 | CPU のスレッド | 14 (P+E) が DGEMM / ADI で最速。16 (LP-E コアを含む) は Eigen で約 3 倍遅くなる。FTCS (メモリ律速) は 6 (P のみ) が最速 |
 
 ### カーネル確認 (Nsight Systems)
@@ -167,6 +168,52 @@ NVBLAS は呼び出しのたびに A, B を GPU に送り、C を戻すので、
   `CUBLAS_STATUS_ALLOC_FAILED` で失敗するが、`dgemm_` は C に触れずに戻り、エラーは NVBLAS のログにしか出ない。
   `run_fortran_benchmarks.sh` は実行ごとにログを確認し、失敗を `FAILED` 行として記録する
 
+### cuSOLVER (LU・Cholesky・QR・固有値)
+
+「密な連立方程式や固有値問題も Ozaki で速くなるか」を確かめる追加実験 (`make cusolver-bench`、
+[results-cusolver/report.md](results-cusolver/report.md))。
+
+**cuBLAS の環境変数は cuSOLVER に届かない。** cuSOLVER のドキュメント (Floating Point Emulation の節) のとおり、
+`CUBLAS_EMULATE_DOUBLE_PRECISION` は cuSOLVER の中の cuBLAS ハンドルには効かず、
+cuSOLVER のハンドルごとに `cusolverDnSetMathMode(handle, CUSOLVER_FP64_EMULATED_FIXEDPOINT_MATH)` と
+`cusolverDnSetEmulationStrategy` で有効にする。CuPy 14.2.0 にはこの API がないので、
+`src/benchmark_cusolver.py` は CuPy の cuSOLVER ハンドルに ctypes で設定し、同じプロセスの中で次の 4 つを切り替える。
+
+| モード | math mode | 戦略 |
+|---|---|---|
+| `default` | `CUSOLVER_DEFAULT_MATH` | - (ネイティブ FP64) |
+| `emu-performant` | `CUSOLVER_FP64_EMULATED_FIXEDPOINT_MATH` | `performant` |
+| `emu-eager` | `CUSOLVER_FP64_EMULATED_FIXEDPOINT_MATH` | `eager` |
+| `default-again` | `CUSOLVER_DEFAULT_MATH` | - (最後に戻せることの確認) |
+
+- 対象: `cupy.linalg.solve` (getrf + getrs)、`cholesky` (potrf)、`qr` (geqrf + orgqr)、`eigh` (Xsyevd)。
+  対照として CuPy の cuBLAS ハンドルでの `A @ A` も測る (cuSOLVER の math mode では変わらないはず)
+- 同じベンチを `cuda13-native` と `cuda13-emu` で流し、cuBLAS の環境変数が cuSOLVER の時間を変えないことを確かめる
+- `src/benchmark_blas3.py`: ブロック分解の部品になる cuBLAS の GEMM / SYRK / TRSM / 幅 k の GEMM (P Pᵀ) を、
+  環境変数の 3 条件 (`cuda13-native` / `cuda13-emu` / `cuda13-emu-eager`) で測る
+- nsys の `nvtx_kern_sum` で、NVTX 範囲 (ルーチン × モード、演算 × 条件) ごとに実際に動いたカーネルを集計する
+- 精度は後退誤差型の残差 (LU: `‖b − Ax‖∞ / (‖A‖∞‖x‖∞ + ‖b‖∞)`、Cholesky: `‖LLᵀ − S‖F / ‖S‖F` など) を GPU の FP64 で計算する。
+  残差の計算自体にも丸め誤差があるので、比べるのは同じ条件の中のモードどうしだけ
+
+結果 (RTX 5080、ドライバ 595.99.02、2026-11-22)。倍率は default の時間を、emu-performant と emu-eager の速いほうで割ったもの。
+
+| ルーチン | N=2048 | 4096 | 8192 | 12000 |
+|---|---:|---:|---:|---:|
+| LU (solve) | 1.44x | 2.01x | 3.49x | **4.94x** |
+| QR | 1.12x | 1.35x | 1.97x | - |
+| eigh | 1.11x | 1.24x | 1.33x | - |
+| Cholesky | 1.11x | 1.09x | 1.03x | 1.04x |
+
+- 精度は default と同じ桁 (LU の後退誤差は 8.9–54u、Cholesky の再構成誤差は 3 桁まで一致、QR はむしろ小さい)
+- `cuda13-emu` (cuBLAS の環境変数あり) の default の時間は `cuda13-native` の 0.99–1.00 倍。CuPy のハンドルの GEMM だけが 7.4–21.7x 速くなる
+- `default-again` は最初の `default` と 0.7% 以内で一致した (切り替えは元に戻せる)。繰り返しの相対標準偏差は最大 0.7%
+- nsys (N=8192): LU は default で時間の 89% が FP64 GEMM。emu ではそこが Ozaki-II (`oz2_int8_dgemm` + INT8 `nvjet_*_biu_mma`) になる。
+  Cholesky は時間の約 8 割が FP64 の SYRK (`d884syrk`) で、どのモードでも変わらない。
+  QR は performant だと行列積の 75% が FP64 のままで、eager なら 68% が Ozaki-II。eigh は 53% が行列積以外 (三重対角化など)
+- cuBLAS 単体 (N=8192、performant): GEMM 17.1x、TRSM 4.6x、SYRK 2.9x (時間の 80% は FP64 の SYRK カーネルのまま)。
+  幅 k の GEMM (N × k の P で P Pᵀ) は k ≤ 256 で FP64 のまま (1.00x)、k = 512 で 7.6x、2048 で 13.7x。eager なら k = 256 でも 4.7x
+- 10 月の予備測定 (cuBLAS の環境変数だけで切り替え) で「cuSOLVER は速くならない」としたのは、切り替え方の誤り
+
 ## 使い方
 
 ```bash
@@ -181,6 +228,8 @@ make cpu-bench    # CPU ベースライン本番 (results/)。DGEMM + PDE、ス�
 make cpu-phi-sweep  # CPU の φ 掃引 (results-phi/)。THREADS=14 のようにスレッド数を指定
 make fortran-quick  # Fortran + NVBLAS の drop-in を小サイズで動作確認 (results-quick/fortran/)
 make fortran-bench  # Fortran + NVBLAS の drop-in 本番 (results-fortran/)。先に make build が必要
+make cusolver-quick # cuSOLVER の math mode と cuBLAS Level-3 の実験を小サイズで動作確認 (results-quick/cusolver/)
+make cusolver-bench # cuSOLVER (LU・Cholesky・QR・固有値) と cuBLAS Level-3、nsys まで (results-cusolver/)
 make analyze      # results/ と results-phi/ から図と report.md を再生成
 make slides       # スライドを http://localhost:8000 で表示 (python3 の http.server)
 make fonts        # スライド (slides-jp/index.html) で使う字にフォントを絞り直す (uv が必要)
@@ -229,6 +278,11 @@ results-phi/          # φ 掃引 (図に dgemm_phi_tflops.png / dgemm_phi_error
 results-fortran/
 ├── dgemm.txt         # Fortran drop-in の RESULT 行 (条件・タイルごと) と nsys の判定 (NSYS 行)
 └── nsys/fortran-nvblas-emu/  # *.nsys-rep とカーネル / memcpy の集計 CSV
+
+results-cusolver/
+├── <condition>/      # env.json、blas3.json、cusolver.json (cuda13-native / cuda13-emu)、*.log
+├── nsys/             # *.nsys-rep と NVTX 範囲ごとのカーネル集計 CSV (*_nvtx_kern_sum.csv)
+└── report.md         # 時間・精度・環境変数の確認・Level-3・カーネルの表
 ```
 
 NumPy の参照解は `cache/` にキャッシュされ、全条件で同じものを使う (NumPy は全イメージで同一バージョンに固定)。
@@ -258,6 +312,9 @@ NumPy の参照解は `cache/` にキャッシュされ、全条件で同じも�
 │   ├── analyze_results.py     # 集計、PNG 出力、Markdown レポート生成
 │   ├── profile_dgemm.py       # nsys 用の DGEMM ドライバ (NVTX 範囲付き)
 │   ├── summarize_nsys.py      # nsys のカーネル集計から実行経路を判定
+│   ├── benchmark_cusolver.py  # cuSOLVER の math mode を ctypes で切り替えて LU / Cholesky / QR / eigh を測る
+│   ├── benchmark_blas3.py     # cuBLAS の GEMM / SYRK / TRSM / 幅 k の GEMM
+│   ├── report_cusolver.py     # results-cusolver/report.md の生成
 │   └── benchmark_cpu.py       # CPU ベースライン (C++/Eigen と NumPy) のオーケストレーション
 ├── scripts/
 │   ├── conditions.sh          # 実験条件の定義 (run_benchmarks.sh / profile_kernels.sh が共有)
@@ -266,6 +323,7 @@ NumPy の参照解は `cache/` にキャッシュされ、全条件で同じも�
 ├── profile_kernels.sh         # nsys で実行カーネルを確認
 ├── run_cpu_benchmarks.sh      # CPU ベースラインを一括実行
 ├── run_fortran_benchmarks.sh  # Fortran + NVBLAS の drop-in 実験を一括実行
+├── run_cusolver_benchmarks.sh # cuSOLVER と cuBLAS Level-3 の実験を一括実行
 ├── Makefile
 └── slides-jp/                 # 発表スライド (reveal.js、lt-slide-template の水彩の地図帳テーマ)
 ```

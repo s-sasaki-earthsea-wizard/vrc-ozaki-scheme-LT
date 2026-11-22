@@ -16,10 +16,16 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
 - Fortran drop-in (`fortran/`, `fortran` サービス = cuda13 + gfortran + OpenBLAS): OpenBLAS にリンクした
   同一バイナリを `LD_PRELOAD=libnvblas.so.13` で cuBLAS に回し、エミュレーションを環境変数で切り替える。
   時間は PCIe 転送込み。NVBLAS は失敗しても `dgemm_` が黙って戻るので、ランナーが毎回 NVBLAS のログを確認する
+- cuSOLVER (`run_cusolver_benchmarks.sh` → `results-cusolver/`): **cuBLAS の環境変数は cuSOLVER の中の cuBLAS ハンドルに届かない。**
+  `src/benchmark_cusolver.py` が CuPy の cuSOLVER ハンドルに ctypes で `cusolverDnSetMathMode` /
+  `cusolverDnSetEmulationStrategy` を設定し、同じプロセスで default / emu-performant / emu-eager / default-again を切り替える。
+  `src/benchmark_blas3.py` は cuBLAS の GEMM / SYRK / TRSM / 幅 k の GEMM を環境変数の条件で測る。nsys は `nvtx_kern_sum`
 - 両イメージともホストドライバの libcuda を使う (cuda13 イメージから forward-compat libcuda を削除済み)
 - ワークロード: DGEMM、2D 熱方程式 (ADI-GEMM / FTCS ステンシル = 負の対照)
 - 精度: NumPy 比較、厳密丸め参照 (TwoProduct + fsum) とのサンプル比較、PDE の離散厳密解との比較
-- カーネル確認: `profile_kernels.sh` (nsys) で実際に動いたカーネルから Ozaki-I / II / native を判定
+- カーネル確認: `profile_kernels.sh` (nsys) で実際に動いたカーネルから Ozaki-I / II / native を判定。
+  `cublasLt_imma_emu::...d884gemm` は名前に imma を含むが FP64 DMMA のカーネル (エミュレーションからの FP64 への戻り道と推定)。
+  `summarize_nsys.py` はこれを INT8 MMA に数えている (DGEMM では時間の 0.3% 以下で、結論は変わらない)
 
 ### 進捗
 
@@ -29,9 +35,11 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
 - [x] C++/Eigen の CPU ベースライン: Eigen 比で GPU native 2.5x、GPU Ozaki 48x (DGEMM N=16000)、ADI 39x
 - [x] Fortran + NVBLAS の drop-in: 再ビルドなしで Ozaki-II が動く。OpenBLAS 比 10.4x (N=16000)。
   PCIe x4 のため転送が約 7 割。スライドでは Appendix に置いた
-- [ ] スライド作成: ドラフト (本編 24 枚 + Appendix 8 枚) を `feature/slides-draft` で作成中。
+- [x] cuSOLVER (2026-11-22、ドライバ 595.99.02): math mode を API で指定すると LU は 4.9x (N=12000)、QR 最大 2.0x、
+  eigh 最大 1.3x、Cholesky 1.0〜1.1x (potrf の約 8 割が FP64 の SYRK のまま)。10 月の「速くならない」は環境変数だけで切り替えた誤り
+- [ ] スライド作成: ドラフト (本編 25 枚 + Appendix 9 枚) を `feature/slides-draft` で作成中。
   導入は物理 (偏微分方程式 → 陰解法 → 行列 → GPU と精度 → Ozaki の噂) から入る構成。
-  表紙のイラスト、cuSOLVER の数値の取り直し、スライド用の図、FP32 での ADI の測定は未着手
+  表紙のイラスト、スライド用の図、FP32 での ADI の測定は未着手
 
 ## 言語設定
 
