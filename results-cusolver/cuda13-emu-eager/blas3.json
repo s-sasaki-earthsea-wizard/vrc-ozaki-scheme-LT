@@ -1,0 +1,216 @@
+{
+  "benchmark": "blas3",
+  "condition": "cuda13-emu-eager",
+  "env": {
+    "condition": "cuda13-emu-eager",
+    "timestamp": "2026-11-22T08:01:39.370509+00:00",
+    "hostname": "4397c29cac6c",
+    "python": "3.12.3",
+    "numpy": "2.2.6",
+    "numpy_blas": {
+      "name": "scipy-openblas",
+      "found": true,
+      "version": "0.3.29",
+      "detection method": "pkgconfig",
+      "include directory": "/opt/_internal/cpython-3.12.7/lib/python3.12/site-packages/scipy_openblas64/include",
+      "lib directory": "/opt/_internal/cpython-3.12.7/lib/python3.12/site-packages/scipy_openblas64/lib",
+      "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+      "pc file directory": "/project/.openblas"
+    },
+    "cupy": "14.2.0",
+    "cuda_runtime": "13.2",
+    "cuda_toolkit": "13.4.2",
+    "cuda_driver_api": "13.2",
+    "cublas_version": 130800,
+    "libcublas_loaded": [
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcublas.so.13.8.0.4",
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcublasLt.so.13.8.0.4"
+    ],
+    "libcuda_loaded": [
+      "/usr/lib/x86_64-linux-gnu/libcuda.so.595.99.02"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5080",
+    "compute_capability": "12.0",
+    "gpu_memory_gib": 15.47,
+    "nvidia_smi": {
+      "name": "NVIDIA GeForce RTX 5080",
+      "driver_version": "595.99.02",
+      "clocks.sm": "2760 MHz",
+      "clocks.max.sm": "3090 MHz",
+      "clocks.mem": "14801 MHz",
+      "temperature.gpu": "33",
+      "power.draw": "48.02 W",
+      "power.limit": "360.00 W",
+      "persistence_mode": "Disabled"
+    },
+    "emulation_env": {
+      "CUBLAS_EMULATE_DOUBLE_PRECISION": "1",
+      "CUBLAS_EMULATION_STRATEGY": "eager",
+      "CUBLAS_FIXEDPOINT_EMULATION_MANTISSA_BIT_COUNT": null,
+      "CUBLAS_EMULATION_SPECIAL_VALUES_SUPPORT_MASK": null
+    },
+    "cpu_count": 16
+  },
+  "config": {
+    "n": 8192,
+    "ranks": [
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "phi": 0.5,
+    "warmup": 1,
+    "repeats": 5,
+    "seed": 20261006,
+    "profile": false,
+    "output": "results-cusolver/cuda13-emu-eager/blas3.json"
+  },
+  "results": [
+    {
+      "n": 8192,
+      "op": "gemm",
+      "flops": 1099511627776.0,
+      "status": "ok",
+      "times_s": [
+        0.0769226531982422,
+        0.07883353424072266,
+        0.07872367858886718,
+        0.07848448181152344,
+        0.07874473571777343
+      ],
+      "median_s": 0.07872367858886718,
+      "min_s": 0.0769226531982422,
+      "max_s": 0.07883353424072266,
+      "std_s": 0.0008037920682108239,
+      "tflops_median": 13.966720654889329
+    },
+    {
+      "n": 8192,
+      "op": "syrk",
+      "flops": 549755813888.0,
+      "status": "ok",
+      "times_s": [
+        0.24190620422363282,
+        0.24191818237304688,
+        0.2419296569824219,
+        0.2419575653076172,
+        0.2419981689453125
+      ],
+      "median_s": 0.2419296569824219,
+      "min_s": 0.24190620422363282,
+      "max_s": 0.2419981689453125,
+      "std_s": 3.673617559489871e-05,
+      "tflops_median": 2.2723787597811715
+    },
+    {
+      "n": 8192,
+      "op": "trsm",
+      "flops": 549755813888.0,
+      "status": "ok",
+      "times_s": [
+        0.1483868408203125,
+        0.14839840698242188,
+        0.14837823486328125,
+        0.14840115356445313,
+        0.14837277221679687
+      ],
+      "median_s": 0.1483868408203125,
+      "min_s": 0.14837277221679687,
+      "max_s": 0.14840115356445313,
+      "std_s": 1.2334558016019147e-05,
+      "tflops_median": 3.7048825276475905
+    },
+    {
+      "n": 8192,
+      "op": "gemm_rank128",
+      "flops": 17179869184.0,
+      "status": "ok",
+      "times_s": [
+        0.008304384231567383,
+        0.008286751747131348,
+        0.008087679862976075,
+        0.008290528297424316,
+        0.008292351722717285
+      ],
+      "median_s": 0.008290528297424316,
+      "min_s": 0.008087679862976075,
+      "max_s": 0.008304384231567383,
+      "std_s": 9.228355096705636e-05,
+      "tflops_median": 2.072228520025365
+    },
+    {
+      "n": 8192,
+      "op": "gemm_rank256",
+      "flops": 34359738368.0,
+      "status": "ok",
+      "times_s": [
+        0.009105664253234863,
+        0.009158783912658692,
+        0.009098431587219239,
+        0.00920076847076416,
+        0.009202976226806641
+      ],
+      "median_s": 0.009158783912658692,
+      "min_s": 0.009098431587219239,
+      "max_s": 0.009202976226806641,
+      "std_s": 5.007684224728686e-05,
+      "tflops_median": 3.751561200227701
+    },
+    {
+      "n": 8192,
+      "op": "gemm_rank512",
+      "flops": 68719476736.0,
+      "status": "ok",
+      "times_s": [
+        0.011238271713256837,
+        0.01121225643157959,
+        0.01121504020690918,
+        0.011227807998657226,
+        0.011221856117248534
+      ],
+      "median_s": 0.011221856117248534,
+      "min_s": 0.01121225643157959,
+      "max_s": 0.011238271713256837,
+      "std_s": 1.0445361468696715e-05,
+      "tflops_median": 6.12371750430616
+    },
+    {
+      "n": 8192,
+      "op": "gemm_rank1024",
+      "flops": 137438953472.0,
+      "status": "ok",
+      "times_s": [
+        0.015807968139648437,
+        0.015782272338867188,
+        0.01578777599334717,
+        0.015755295753479004,
+        0.015756287574768067
+      ],
+      "median_s": 0.015782272338867188,
+      "min_s": 0.015755295753479004,
+      "max_s": 0.015807968139648437,
+      "std_s": 2.2353928663974436e-05,
+      "tflops_median": 8.708438843342442
+    },
+    {
+      "n": 8192,
+      "op": "gemm_rank2048",
+      "flops": 274877906944.0,
+      "status": "ok",
+      "times_s": [
+        0.024702911376953126,
+        0.02466966438293457,
+        0.02463929557800293,
+        0.024635072708129882,
+        0.024446815490722657
+      ],
+      "median_s": 0.02463929557800293,
+      "min_s": 0.024446815490722657,
+      "max_s": 0.024702911376953126,
+      "std_s": 9.990675502521435e-05,
+      "tflops_median": 11.156078146544134
+    }
+  ]
+}
