@@ -544,9 +544,10 @@
     width: 1280px;
     height: 192px;
     box-sizing: border-box;
-    padding: 26px 64px 0;
+    padding: 0 64px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 12px;
     background: var(--atlas-ground);
     border-top: 5px double #A8916A;
@@ -558,6 +559,13 @@
     font-size: 54px;
     font-weight: 800;
     line-height: 1.25;
+}
+
+/* A title broken onto two lines with <br> gets smaller type, so that it and
+   the subtitle row still fit in the 192 px band. */
+.reveal .title-band h1:has(br) {
+    font-size: 44px;
+    line-height: 1.2;
 }
 
 .reveal .title-band .title-sub {
