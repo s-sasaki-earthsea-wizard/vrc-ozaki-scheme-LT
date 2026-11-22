@@ -49,6 +49,7 @@
 
 `ftcs-stencil` は「Ozaki は FP64 全般ではなく GEMM を速くする技術」であることを示す負の対照。
 ステンシルや三重対角ソルバのような GEMM でない FP64 計算は、エミュレーションの恩恵を受けない。
+`adi-gemm` の密な M は行列積を取り出すための模型で、同じ ADI を三重対角ソルバで解いた比較は下の「ADI のソルバ比較」にある。
 
 ### 精度評価
 
@@ -118,6 +119,7 @@
 | CPU の PDE | ADI: GPU Ozaki が Eigen 比 11.7–39x。FTCS: GPU は Ozaki と無関係に 6.5–18x (メモリ帯域の差) |
 | CPU の精度 | Eigen / OpenBLAS の scaled err は 0.2–0.9u (φ=0.5)、N=8000・φ=4 で 25–27u。Ozaki (0.05–1.9u) はどちらより小さい |
 | cuSOLVER (math mode を API で指定) | LU 1.4–4.9x (N=2048–12000)、QR 最大 2.0x、eigh 最大 1.3x、Cholesky 1.0–1.1x。cuBLAS の環境変数では切り替わらない (2026-11-22、[results-cusolver/report.md](results-cusolver/report.md)) |
+| ADI のソルバ比較 (N=8192、1 ステップ) | 三重対角ソルバ 15.7 ms、伝播行列 Ozaki 169.5 ms (FP64 2689 ms)、密な LU Ozaki 692.5 ms (FP64 5536 ms)。三重対角が Ozaki の 10.8x 速い (2026-11-22、[results-adi/report.md](results-adi/report.md)) |
 | CPU のスレッド | 14 (P+E) が DGEMM / ADI で最速。16 (LP-E コアを含む) は Eigen で約 3 倍遅くなる。FTCS (メモリ律速) は 6 (P のみ) が最速 |
 
 ### カーネル確認 (Nsight Systems)
@@ -214,6 +216,50 @@ cuSOLVER のハンドルごとに `cusolverDnSetMathMode(handle, CUSOLVER_FP64_E
   幅 k の GEMM (N × k の P で P Pᵀ) は k ≤ 256 で FP64 のまま (1.00x)、k = 512 で 7.6x、2048 で 13.7x。eager なら k = 256 でも 4.7x
 - 10 月の予備測定 (cuBLAS の環境変数だけで切り替え) で「cuSOLVER は速くならない」としたのは、切り替え方の誤り
 
+### ADI のソルバ比較 (三重対角ソルバ / 密な LU / 伝播行列)
+
+`adi-gemm` の密な伝播行列 M は、行列積を取り出すための模型で、実際の陰解法は三重対角ソルバで解く (1 ステップ O(N²))。
+「三重対角ソルバで解けばいいのでは」に実測で答えるため、**同じ ADI (同じ格子、時間刻み、初期条件、離散厳密解)** を
+ソルバだけ替えて測る (`make adi-bench`、[results-adi/report.md](results-adi/report.md))。
+
+| ソルバ | 1 ステップの中身 | 計算量 |
+|---|---|---|
+| `tridiag-thomas` | 帯行列の積 + Thomas 法 (自前の CUDA カーネル、格子の 1 線に 1 スレッド) | O(N²) |
+| `tridiag-cusparse` / `-pivot` | 帯行列の積 + cuSPARSE `gtsv2_nopivot` / `gtsv2` | O(N²) |
+| `propagator` | `U ← M U M` (GEMM 2 回)。M は固有分解の式から作る (`adi-gemm` と同じ) | O(N³) |
+| `propagator-lu` | 同上。ただし M を GPU 上の getrf + getrs (右辺 N 本) で作る | O(N³) |
+| `dense-lu` | A = I − aL と B = I + aL を一般の密行列として扱う。getrf は最初に 1 回、毎ステップ GEMM 2 回 + getrs 2 回 | O(N³) |
+
+- どれも厳密な算術では `U ← M U M` に一致する。誤差は同じ離散厳密解と比べる
+- エミュレーションは条件の環境変数に従う。cuBLAS は環境変数を自分で読み、cuSOLVER には `src/benchmark_adi.py` が同じ設定の math mode を入れる
+- 三重対角ソルバは cuBLAS も cuSOLVER も呼ばないので、条件間の比は対照になる
+- 配列は C 順のまま。転置は直前の積に畳み込み (転置した GEMM のオペランド、または結果を転置して書くカーネル)、転置のコピーはしない
+- `tridiag-thomas` は素直な実装で、チューニングはしていない (係数が全線で共通なことだけ使っている)
+
+結果 (RTX 5080、ドライバ 595.99.02、2026-11-22)。1 ステップの時間 [ms]、20 ステップ × 3 回の中央値。Ozaki は `cuda13-emu` と `cuda13-emu-eager` の速いほう。
+
+| N | 三重対角 (Thomas) | 三重対角 (cuSPARSE の速いほう) | 伝播行列 FP64 | 伝播行列 Ozaki | 密な LU FP64 | 密な LU Ozaki |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1024 | 0.719 | 5.675 | 6.89 | 1.406 | 15.29 | 10.77 |
+| 2048 | 1.517 | 14.21 | 44.71 | 5.667 | 102.3 | 35.25 |
+| 4096 | 6.029 | 53.47 | 338.2 | 29.16 | 726.1 | 145.5 |
+| 8192 | **15.71** | 111.2 | 2689 | **169.5** | 5536 | 692.5 |
+
+- **三重対角ソルバ (自前の Thomas 法) は、伝播行列の Ozaki より 2.0x (N=1024) 〜 10.8x (N=8192) 速い。** FP64 の伝播行列とは 9.6x 〜 171x。
+  N=8192 では Ozaki が密行列との差を 171x から 10.8x に縮めるが、O(N²) と O(N³) の差は埋まらず、N とともに開く
+- 伝播行列の Ozaki は、cuSPARSE の三重対角ソルバより N ≤ 4096 で 1.8–4.0x 速く、N=8192 で 1.5x 遅い。FP64 のままだと N=8192 で cuSPARSE の 24x 遅い
+- 密な LU で毎ステップ解くと、Ozaki で 1.4x 〜 8.0x 速くなる (N=8192 で 5536 → 692.5 ms) が、三重対角ソルバより 15–44x 遅い。
+  内訳 (N=8192、eager): GEMM 2 回が 14.8x、getrs 2 回 (右辺 N 本) が 5.3x
+- **三重対角行列を密行列として getrf しても Ozaki は効かない** (N=8192 で 497.6 → 473.3 ms、1.05x。乱数行列では 3.5x)。
+  nsys で見ると、エミュレーションの経路には入るが、カーネル時間の 77–78% が FP64 に戻る `cublasLt_imma_emu::...d884gemm` だった。
+  右辺が三重対角の getrs (M を作るとき) も同じで 86–88% が FP64。要素の桁のばらつきが極端に大きい (ゼロと、指数的に減衰する要素) ためと推定している (未確認)
+- 丸め誤差 (離散厳密解との相対誤差、N=8192): A で解くソルバは 3.4e-12 〜 2.9e-11 (三重対角 1.7e-11、密な LU 1.7e-11、LU で作った M 2.9e-11)。
+  A の条件数 (約 1.3 万) が効く。固有分解の式から作った M は FP64 2.0e-13、Ozaki 7.3e-15 だが、これは M を解析的に作れるこの問題に特有。
+  どれも離散化誤差 (7.5e-6) よりずっと小さい
+- 対照: 三重対角ソルバの時間は 3 条件で 0.98–1.01x。例外は `tridiag-cusparse` の N=2048 で、エミュレーション条件の通し実行では 0.80x (17.7 ms) になった。
+  単独で流すと両条件とも 14.2 ms で、`propagator-lu` (エミュレーションあり) を同じプロセスで先に動かしたときだけ再現する (原因は未特定、この切り分けの出力はリポジトリに入れていない)
+- nsys のプロファイルは、準備 (getrf / getrs) を NVTX の範囲で囲む変更のあとに取り直した。`adi.json` はその変更の前の実行のもの (計時の経路は同じ)
+
 ## 使い方
 
 ```bash
@@ -230,6 +276,8 @@ make fortran-quick  # Fortran + NVBLAS の drop-in を小サイズで動作確�
 make fortran-bench  # Fortran + NVBLAS の drop-in 本番 (results-fortran/)。先に make build が必要
 make cusolver-quick # cuSOLVER の math mode と cuBLAS Level-3 の実験を小サイズで動作確認 (results-quick/cusolver/)
 make cusolver-bench # cuSOLVER (LU・Cholesky・QR・固有値) と cuBLAS Level-3、nsys まで (results-cusolver/)
+make adi-quick      # ADI のソルバ比較を小サイズで動作確認 (results-quick/adi/)
+make adi-bench      # ADI を伝播行列 / 密な LU / 三重対角ソルバで比較、nsys まで (results-adi/)
 make analyze      # results/ と results-phi/ から図と report.md を再生成
 make slides       # スライドを http://localhost:8000 で表示 (python3 の http.server)
 make fonts        # スライド (slides-jp/index.html) で使う字にフォントを絞り直す (uv が必要)
@@ -283,6 +331,11 @@ results-cusolver/
 ├── <condition>/      # env.json、blas3.json、cusolver.json (cuda13-native / cuda13-emu)、*.log
 ├── nsys/             # *.nsys-rep と NVTX 範囲ごとのカーネル集計 CSV (*_nvtx_kern_sum.csv)
 └── report.md         # 時間・精度・環境変数の確認・Level-3・カーネルの表
+
+results-adi/
+├── <condition>/      # env.json、adi.json、*.log
+├── nsys/             # *.nsys-rep と NVTX 範囲 (ソルバ) ごとのカーネル集計 CSV
+└── report.md         # ソルバ × 条件の時間、丸め誤差、LU の内訳、カーネルの表
 ```
 
 NumPy の参照解は `cache/` にキャッシュされ、全条件で同じものを使う (NumPy は全イメージで同一バージョンに固定)。
@@ -315,6 +368,8 @@ NumPy の参照解は `cache/` にキャッシュされ、全条件で同じも�
 │   ├── benchmark_cusolver.py  # cuSOLVER の math mode を ctypes で切り替えて LU / Cholesky / QR / eigh を測る
 │   ├── benchmark_blas3.py     # cuBLAS の GEMM / SYRK / TRSM / 幅 k の GEMM
 │   ├── report_cusolver.py     # results-cusolver/report.md の生成
+│   ├── benchmark_adi.py       # 同じ ADI を伝播行列 / 密な LU / 三重対角ソルバで解く
+│   ├── report_adi.py          # results-adi/report.md の生成
 │   └── benchmark_cpu.py       # CPU ベースライン (C++/Eigen と NumPy) のオーケストレーション
 ├── scripts/
 │   ├── conditions.sh          # 実験条件の定義 (run_benchmarks.sh / profile_kernels.sh が共有)
@@ -324,6 +379,7 @@ NumPy の参照解は `cache/` にキャッシュされ、全条件で同じも�
 ├── run_cpu_benchmarks.sh      # CPU ベースラインを一括実行
 ├── run_fortran_benchmarks.sh  # Fortran + NVBLAS の drop-in 実験を一括実行
 ├── run_cusolver_benchmarks.sh # cuSOLVER と cuBLAS Level-3 の実験を一括実行
+├── run_adi_benchmarks.sh      # ADI のソルバ比較を一括実行
 ├── Makefile
 └── slides-jp/                 # 発表スライド (reveal.js、lt-slide-template の水彩の地図帳テーマ)
 ```

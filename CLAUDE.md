@@ -20,6 +20,9 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
   `src/benchmark_cusolver.py` が CuPy の cuSOLVER ハンドルに ctypes で `cusolverDnSetMathMode` /
   `cusolverDnSetEmulationStrategy` を設定し、同じプロセスで default / emu-performant / emu-eager / default-again を切り替える。
   `src/benchmark_blas3.py` は cuBLAS の GEMM / SYRK / TRSM / 幅 k の GEMM を環境変数の条件で測る。nsys は `nvtx_kern_sum`
+- ADI のソルバ比較 (`run_adi_benchmarks.sh` → `results-adi/`): `src/benchmark_adi.py` が同じ ADI を、伝播行列 (GEMM)、
+  密な LU (getrf 1 回 + 毎ステップ GEMM 2 回 + getrs 2 回)、三重対角ソルバ (自前の Thomas 法カーネル、cuSPARSE gtsv2) で解く。
+  cuSOLVER の math mode は条件の環境変数に合わせて設定する。転置は直前の積に畳み込み、コピーしない
 - 両イメージともホストドライバの libcuda を使う (cuda13 イメージから forward-compat libcuda を削除済み)
 - ワークロード: DGEMM、2D 熱方程式 (ADI-GEMM / FTCS ステンシル = 負の対照)
 - 精度: NumPy 比較、厳密丸め参照 (TwoProduct + fsum) とのサンプル比較、PDE の離散厳密解との比較
@@ -37,7 +40,9 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
   PCIe x4 のため転送が約 7 割。スライドでは Appendix に置いた
 - [x] cuSOLVER (2026-11-22、ドライバ 595.99.02): math mode を API で指定すると LU は 4.9x (N=12000)、QR 最大 2.0x、
   eigh 最大 1.3x、Cholesky 1.0〜1.1x (potrf の約 8 割が FP64 の SYRK のまま)。10 月の「速くならない」は環境変数だけで切り替えた誤り
-- [ ] スライド作成: ドラフト (本編 25 枚 + Appendix 9 枚) を `feature/slides-draft` で作成中。
+- [x] ADI のソルバ比較 (2026-11-22): N=8192 の 1 ステップは三重対角ソルバ 15.7 ms、伝播行列 Ozaki 169.5 ms (FP64 2689 ms)、
+  密な LU Ozaki 692.5 ms。三重対角が Ozaki の 10.8x 速い。三重対角行列を密行列として getrf しても Ozaki は効かない (FP64 に戻る)
+- [ ] スライド作成: ドラフト (本編 25 枚 + Appendix 10 枚) を `feature/slides-draft` で作成中。
   導入は物理 (偏微分方程式 → 陰解法 → 行列 → GPU と精度 → Ozaki の噂) から入る構成。
   表紙のイラスト、スライド用の図、FP32 での ADI の測定は未着手
 
