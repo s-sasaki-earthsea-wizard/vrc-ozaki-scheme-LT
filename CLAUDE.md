@@ -75,7 +75,7 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
 - 手元での表示は `make slides` (http://localhost:8000、`SLIDES_PORT` / `SLIDES_BIND` で変更)
 - フォントは `slides-jp/vendor/fonts` に同梱したサブセット。**スライドを書いたら `make fonts` を流す** (`scripts/subset-fonts.sh`)
 - スライドの区切りは「`---` だけの行」。発表者ノートは `Note:` の行から下 (`note:` / `notes:` という文字列を本文に書かない)
-- 数式は KaTeX (`$...$`)。`\{`、`\,`、`\|` を使わない。下付き `_` を 2 つ以上含む数式は空行を挟まない `<div>` で囲む。
+- 数式は KaTeX (`$...$`)。jsDelivr から読み、版は `Reveal.initialize` の `katex: { version: '0.19.1' }` で固定している。`\{`、`\,`、`\|` を使わない。下付き `_` を 2 つ以上含む数式は空行を挟まない `<div>` で囲む。
   上付きの数字 (`10⁻¹³` など) はフォントにないので KaTeX で書く (`$10^{-13}$`)
 - 太字の中身が記号で始まるときは `**` ではなく `<b>`。HTML ブロック (表など) の中は Markdown が効かないので `<b>` を使う
 - 部品: `simple-box`、`highlight-box`、`results-box` (表)、`summary-list`、`caption`、`credit`、`ref-list`。

@@ -13,8 +13,7 @@
   <link rel="stylesheet" href="vendor/fonts/fonts.css">
   <link rel="stylesheet" href="styles/custom-style.css">
 
-  <!-- KaTeX (the math plugin loads KaTeX itself) -->
-  <script src="plugin/math/katex.js"></script>
+  <!-- Math plugin: it loads KaTeX from jsDelivr (version pinned in Reveal.initialize) -->
   <script src="plugin/math/math.js"></script>
 
   <!-- Theme used for syntax highlighted code -->
@@ -275,7 +274,7 @@ GeForce でも FP64 の答えは正しく出る。問題は精度ではなく速
 <div class="simple-box dense">
 
 * 行列積そのものと、答えが式で書ける 2D 熱方程式を解く
-* GPU (Ozaki なし / あり) と CPU で、速さと精度を比べる
+* GPU FP64、GPU Ozaki、CPU で、速さと精度を比べる
 
 </div>
 
@@ -380,7 +379,7 @@ python my_simulation.py
 
 * プログラムを書き換えずに、cuBLAS の FP64 行列積 (DGEMM) が Ozaki になる。CuPy などからもそのまま
 * performant: 得なときだけ使う (既定)、eager: 使えるときはいつも使う
-* CUDA 13.0 Update 2 で Ozaki-I、13.4 で Ozaki-II が入った。GeForce なら RTX 30 / 40 / 50 が対象
+* CUDA 13.0 Update 2 で Ozaki-I、13.4 で Ozaki-II が入った。GeForce なら RTX&nbsp;30&nbsp;/&nbsp;40&nbsp;/&nbsp;50 が対象
 * **CUDA 13 に上げただけでは使われない** (環境変数で opt-in)
 
 </div>
@@ -403,7 +402,7 @@ cuSOLVER (LU など) はこの環境変数では切り替わらない。ハン�
 <tr><th>項目</th><th>内容</th></tr>
 <tr><td>GPU</td><td>GeForce RTX 5080 16 GB (Blackwell)</td></tr>
 <tr><td>CPU</td><td>Core Ultra 9 285H (16 コア)、C++ + Eigen 3.4、14 スレッド</td></tr>
-<tr><td>比べる条件</td><td>CUDA 12.9 / CUDA 13.4 (Ozaki off) / CUDA 13.4 (Ozaki on) / CPU</td></tr>
+<tr><td>比べる条件</td><td>GPU FP64 (CUDA 12.9 / 13.4) / GPU Ozaki (CUDA 13.4) / CPU</td></tr>
 <tr><td>行列積</td><td>C = AB、N = 2000〜16000、FP64</td></tr>
 <tr><td>偏微分方程式</td><td>2D 熱方程式。陰解法 (ADI) と陽解法 (ステンシル)</td></tr>
 </table>
@@ -412,7 +411,7 @@ cuSOLVER (LU など) はこの環境変数では切り替わらない。ハン�
 <div class="simple-box dense">
 
 * CUDA のバージョンは Docker で環境を分離
-* 「CUDA 12.9 vs 13.4 (off)」で版の違い、「13.4 の off vs on」で Ozaki の効果を切り分ける
+* GPU FP64 の 12.9 と 13.4 で版の違い、13.4 の GPU FP64 と GPU Ozaki で Ozaki の効果を切り分ける
 
 </div>
 
@@ -434,13 +433,16 @@ CUDA 12.4 ではなく 12.9 を比較元にしたのは、12.4 が Blackwell (sm
 
 <div class="highlight-box">
 
-1u 未満なら、「FP64 で正しく丸めた答え」とほぼ同じ
+0u なら「FP64 で正しく丸めた答え」と一致<br>1u は、桁落ちがないときの丸め 1 回分
 
 </div>
 
 Note:
 行列積の誤差は |c − c_exact| / (|A||B|) を u 単位で表したもの。誤差なしの積は Dekker の TwoProduct、総和は math.fsum。
 有理数演算で求めた真値とビット単位で一致することを確認済み。
+c_exact は「正しく丸めた答え」そのものなので、0u はそれとビット単位で同じという意味。
+1u は、(|A||B|) の大きさの数を 1 回丸めたときの最大のずれ。足し合わせで打ち消し (桁落ち) があると、答え c は (|A||B|) より小さいので、c に対する相対誤差は 1u より大きくなる。
+だから 1u 未満でも「正しく丸めた答えとほぼ同じ」とは言えない。NumPy は N = 16000 で 0.20u だが、要素ごとの相対誤差は最大 2.2e-13 (results/cpu-numpy/)。
 NumPy や Eigen も同じ物差しで測るので、CPU の FP64 と直接比べられる。
 
 ---
@@ -467,18 +469,18 @@ NumPy や Eigen も同じ物差しで測るので、CPU の FP64 と直接比べ
   </g>
 </svg>
 
-<p class="caption">FP64 行列積、N = 16000、φ = 0.5、中央値 (2026-10-06 測定)。GPU FP64 は CUDA 13.4 で Ozaki off</p>
+<p class="caption">FP64 行列積、N = 16000、φ = 0.5、中央値 (2026-10-06 測定)。GPU FP64 と GPU Ozaki はどちらも CUDA 13.4</p>
 
 <div class="highlight-box">
 
 N = 2000 で 6.9 倍、16000 で **19 倍**。行列が大きいほど効く<br>
-CUDA 12.9 → 13.4 に上げただけ (Ozaki off) では **1.00 倍**
+CUDA 12.9 → 13.4 に上げただけ (GPU FP64 のまま) では **1.00 倍**
 
 </div>
 
 Note:
-倍率はすべて中央値の時間比。GPU FP64 (CUDA 13.4、Ozaki off) 比で 6.9 / 11.4 / 16.4 / 19.1 倍 (N = 2000 / 4000 / 8000 / 16000)。
-CUDA 12.9 は 0.82 TFLOPS で 13.4 (off) と同じ。
+倍率はすべて中央値の時間比。GPU FP64 (CUDA 13.4) 比で 6.9 / 11.4 / 16.4 / 19.1 倍 (N = 2000 / 4000 / 8000 / 16000)。
+CUDA 12.9 の GPU FP64 は 0.82 TFLOPS で、13.4 と同じ。
 performant と eager は N ≥ 2000 では同じ結果。
 
 ---
@@ -497,14 +499,17 @@ performant と eager は N ≥ 2000 では同じ結果。
 
 <div class="simple-box dense">
 
-* Ozaki-II は整数の行列積を**誤差なし**で計算する。誤差が入るのは主に「入力を整数に丸めるとき」と「FP64 に戻すとき」
-* 普通の FP64 は、足し算のたびに丸めが入る
+* Ozaki は 256 要素の**半分以上が「正しく丸めた答え」とビット単位で一致**。ずれても最後の 1 ビット
+* 整数の行列積は**誤差なし**。丸めるのは主に、整数にするときと FP64 に戻すとき
 * **Eigen や NumPy 以上に正確**なことに個人的にとても驚いた！
 
 </div>
 
 Note:
 φ = 0.5、サンプルした 256 要素での最大値。全要素の最大誤差は見ていない (NumPy との比較は全要素)。
+「ビット単位で一致」は results/ の vs_exact_sampled から。Ozaki は N = 2000〜16000 のすべてで、要素ごとの相対誤差の中央値が 0 (256 要素の半分以上が一致)、最大が 2.19e-16〜2.22e-16 (2^-52 以下なので、ずれは最後の 1 ビット)。
+同じ指標で、CPU (NumPy と Eigen) は中央値 5.2e-16〜7.3e-16 (約 5〜7u)、最大 3.3e-14〜2.8e-13。GPU FP64 は中央値 1.4e-15〜3.2e-15、最大 1.3e-13〜8.4e-13。
+普通の FP64 は、足し算のたびに丸めが入る。
 GPU FP64 が CPU より大きい理由は調べていない (足し合わせの順序の違いなど)。聞かれたら「未確認」と答える。
 
 ---
@@ -513,7 +518,7 @@ GPU FP64 が CPU より大きい理由は調べていない (足し合わせの�
 
 <div class="results-box dense nowrap-table">
 <table>
-<tr><th>φ</th><th>Ozaki / GPU FP64</th><th>Ozaki</th><th>GPU FP64</th><th>CPU Eigen</th></tr>
+<tr><th>φ</th><th>GPU Ozaki / GPU FP64</th><th>GPU Ozaki</th><th>GPU FP64</th><th>CPU Eigen</th></tr>
 <tr><td>0</td><td>17.1 倍</td><td>0.06 u</td><td>2.1 u</td><td>0.26 u</td></tr>
 <tr><td>0.5</td><td>16.5 倍</td><td>0.05 u</td><td>1.9 u</td><td>0.35 u</td></tr>
 <tr><td>1</td><td>15.9 倍</td><td>0.18 u</td><td>5.0 u</td><td>0.98 u</td></tr>
@@ -525,12 +530,14 @@ GPU FP64 が CPU より大きい理由は調べていない (足し合わせの�
 <div class="simple-box dense">
 
 * 入力 $A = (U(0,1) - 0.5) \cdot e^{\phi \cdot N(0,1)}$。φ が大きいほど要素の桁がばらつく
-* ばらつくほど法の数が増えて少し遅くなるが、Ozaki の誤差は 2u 未満のまま
+* ばらつくほど少し遅くなるが、Ozaki は φ = 4 でも**半分以上がビット単位で一致**
 
 </div>
 
 Note:
-N = 8000、φ 掃引 (results-phi/、2026-10-06)。倍率は CUDA 13.4 の Ozaki off 比。
+N = 8000、φ 掃引 (results-phi/、2026-10-06)。倍率は GPU FP64 (CUDA 13.4) 比。
+表の u は (|A||B|) で割った物差し。Ozaki の 0.06u → 1.8u は精度が落ちたのではない。φ が大きいと和の打ち消しが減って、答えが (|A||B|) に近い大きさになるため (2 つの指標からの推定)。
+要素ごとの相対誤差 (results-phi/ の vs_exact_sampled、N = 8000) は、Ozaki は φ = 0〜4 のすべてで中央値 0、最大 2.19e-16〜2.29e-16。φ = 2 までは最後の 1 ビット以内 (2^-52 以下)、φ = 4 は 2 ビットずれた要素がある。
 φ = 0.5 の 16.5 倍は、サイズ掃引 (results/) の 16.4 倍と別の実行。
 法の数が増えているのは、INT8 の行列積の時間が φ = 0.5 → 4 で 42 → 68 ms に増えたことからの推定 (Nsight Systems)。
 入力の形は Ozaki scheme の論文の慣習に合わせた。
@@ -549,8 +556,8 @@ N = 8000、φ 掃引 (results-phi/、2026-10-06)。倍率は CUDA 13.4 の Ozaki
 <div class="results-box dense nowrap-table">
 <table>
 <tr><th>N</th><th>1024</th><th>2048</th><th>4096</th><th>8192</th></tr>
-<tr><td>Ozaki / GPU FP64</td><td>4.8 倍</td><td>7.9 倍</td><td>11.6 倍</td><td><b>15.9 倍</b></td></tr>
-<tr><td>Ozaki / CPU Eigen</td><td>11.7 倍</td><td>21.5 倍</td><td>29.0 倍</td><td>39.0 倍</td></tr>
+<tr><td>GPU Ozaki / GPU FP64</td><td>4.8 倍</td><td>7.9 倍</td><td>11.6 倍</td><td><b>15.9 倍</b></td></tr>
+<tr><td>GPU Ozaki / CPU Eigen</td><td>11.7 倍</td><td>21.5 倍</td><td>29.0 倍</td><td>39.0 倍</td></tr>
 </table>
 </div>
 
@@ -572,7 +579,7 @@ M = (I − aL)^−1 (I + aL)、a = α dt / 2 を事前に計算しておく。x 
 
 <div class="results-box dense nowrap-table">
 <table>
-<tr><th>cuSOLVER (Ozaki / GPU FP64)</th><th>N = 4096</th><th>8192</th><th>12000</th></tr>
+<tr><th>cuSOLVER (GPU Ozaki / GPU FP64)</th><th>N = 4096</th><th>8192</th><th>12000</th></tr>
 <tr><td>LU 分解 (連立一次方程式)</td><td>2.0 倍</td><td>3.5 倍</td><td><b>4.9 倍</b></td></tr>
 <tr><td>QR 分解</td><td>1.3 倍</td><td>2.0 倍</td><td>2.4 倍</td></tr>
 <tr><td>対称行列の固有値</td><td>1.2 倍</td><td>1.3 倍</td><td>1.4 倍</td></tr>
@@ -602,6 +609,8 @@ LU の後退誤差は N = 12000 で 5.3e-15 (FP64) と 5.4e-15 (Ozaki)。N = 120
 CuPy には math mode の API がないので、CuPy の cuSOLVER ハンドルに ctypes で設定した (Appendix)。
 PDE から出る行列は疎行列なので、この密な LU がそのまま効くのは境界要素法などの密行列の問題。
 倍率は乱数の密行列での値。熱方程式の三重対角行列を密行列として getrf すると 1.05 倍 (N = 8192) で、行列積の約 8 割が FP64 に戻っていた (results-adi/、Appendix)。
+独立な測定: 尾崎先生の講義資料 (参考文献 8、スライド 109) に、RTX 5060 Ti での cuSOLVER の性能比の表がある (1 より大きいと高速化。エミュレーションの有無の比と読める。strategy は書かれていない)。N = 4096 / 8192 / 16384 で、cusolverDnXgetrf は 1.68 / 2.65 / 4.37、cusolverDnXpotrf は 0.99 / 1.00 / 1.81、cusolverDnXgeqrf は 1.10 / 1.32 / 1.19。
+こちらの N = 4096 / 8192 は、LU (getrf + getrs) が 2.0 / 3.5 倍、Cholesky が 1.1 / 1.0 倍、QR の performant が 1.35 / 1.55 倍で、同じ傾向。GPU が違うので値そのものは比べない。同じ資料に cusolverDnSetMathMode で有効にする手順も載っている。
 
 ---
 
@@ -609,12 +618,12 @@ PDE から出る行列は疎行列なので、この密な LU がそのまま効
 
 <div class="results-box">
 <table>
-<tr><th>計算</th><th>Ozaki on / off</th></tr>
+<tr><th>計算</th><th>GPU Ozaki / GPU FP64</th></tr>
 <tr><td>行列積 (DGEMM)</td><td>6.9〜19 倍</td></tr>
 <tr><td>熱方程式: 陰解法 ADI (行列積で回す)</td><td>4.8〜15.9 倍</td></tr>
 <tr><td>連立一次方程式: LU 分解 (cuSOLVER)</td><td>1.4〜4.9 倍</td></tr>
 <tr><td>熱方程式: 陽解法ステンシル</td><td>1.00 倍</td></tr>
-<tr><td>Cholesky 分解 (cuSOLVER)</td><td>1.0〜1.1 倍</td></tr>
+<tr><td>Cholesky 分解 (cuSOLVER、N = 12000 まで)</td><td>1.0〜1.1 倍</td></tr>
 </table>
 </div>
 
@@ -628,6 +637,7 @@ Note:
 ステンシルは隣の 4 点を足すだけで行列積を使わない。GPU は CPU の 6.5〜18 倍速いが、これはメモリ帯域の差で Ozaki とは無関係。
 LU は GPU FP64 のとき時間の 89% が行列積 (残りの行列の更新) で、そこが Ozaki-II になる。Cholesky は時間の約 8 割が SYRK (対称な行列積) の FP64 カーネルで、Ozaki を有効にしても変わらない (N = 8192 の Nsight Systems、Appendix)。
 cuSOLVER は N = 2048〜12000、results-cusolver/ (2026-11-22)。
+Cholesky の 1.0〜1.1 倍は、測った N = 12000 までの話。尾崎先生の講義資料 (参考文献 8、スライド 109、RTX 5060 Ti) の表では、cusolverDnXpotrf は N = 8192 まで 0.99〜1.04、16384 で 1.81。こちらでは N = 16384 を測っていない。
 
 ---
 
@@ -635,17 +645,19 @@ cuSOLVER は N = 2048〜12000、results-cusolver/ (2026-11-22)。
 
 <div class="simple-box dense">
 
-* ADI の密行列 M は、行列積を取り出すための**模型**。実際の陰解法は $O(N^2)$ の三重対角ソルバで解く。測ると N = 8192 で 16 ms、**Ozaki の密行列 (170 ms) より 11&nbsp;倍速い** (FP64 のままなら 171 倍)
+* ADI の密行列 M は、行列積を取り出すための**模型**。実際の陰解法は $O(N^2)$ の三重対角ソルバで解く。測ると N = 8192 で 16 ms、**GPU Ozaki の密行列 (169.5 ms) より 11&nbsp;倍速い** (FP64 のままなら 171 倍)
   * 問題の構造に合わせたソルバを使えば、必ずしも Ozaki が優位とは限らない。Ozaki はあくまで**密行列の積 (DGEMM) が得意な手法**
-* 熱方程式は離散化誤差 (約 $10^{-5}$) が丸め誤差 (約 $10^{-13}$) よりずっと大きい。**この問題自体は FP32 で足りる**。ここでは「丸め誤差だけを測る物差し」として使った
-* RTX 5080 1 枚だけ。計測回数は少なめ (行列積 5 回、熱方程式 3 回)、GPU クロックは固定していない
+* 熱方程式は離散化誤差 (約 $10^{-5}$) が FP64 の丸め誤差 (約 $10^{-13}$) よりずっと大きい。**Ozaki で丸め誤差が減っても、解の精度は変わらない**。ここでは「丸め誤差だけを測る物差し」として使った
+* RTX 5080 1 枚だけ。計測回数は少なめ (行列積 3〜5 回、熱方程式 1〜3 回)、GPU クロックは固定していない
 
 </div>
 
 Note:
-想定質問「なら FP32 で解けば?」→「この問題なら FP32 で足りるし速い。FP64 が要る問題の代役として使っている」。
-離散化誤差は 5.4e-6〜7.5e-6、GPU FP64 の丸め誤差は最大 2.0e-13。
+離散化誤差は 5.4e-6〜7.5e-6、GPU FP64 の丸め誤差は最大 2.0e-13、Ozaki は最大 7.3e-15 (results/)。どちらでも、連続な解とのずれは離散化誤差で決まる。
+想定質問「なら FP32 で解けば?」→「予備の確認では、FP32 だと丸め誤差のほうが離散化誤差より大きくなった。三重対角ソルバで 9.5e-5〜1.4e-3 (離散化誤差の 18〜186 倍)、伝播行列で 9.3e-6〜1.5e-5 (1.3〜2.2 倍)。解く行列の条件数が 1/h² で大きくなるので、格子を細かくするほど FP32 は苦しい」。
+この FP32 の値は予備の確認 (2026-11-22): CPU の NumPy / SciPy、N = 1024 / 2048 / 4096、同じ dt・ステップ数・離散厳密解、1 回だけの実行。リポジトリに入れていない使い捨てのスクリプトで、GPU と N = 8192 では測っていない。スライドの本文に出すなら、results-adi/ に測定を足してから。
 想定質問「三重対角ソルバで解けば?」→「この問題ならそのとおりで、測ると 11 倍速い。Ozaki は構造 (疎・帯) を使えない密行列のための技術で、密行列との差を 171 倍から 11 倍に縮める」(Appendix)。
+計測回数の内訳 (聞かれたら): GPU は行列積 5 回、熱方程式 3 回。CPU は行列積 3 回 (Eigen、NumPy)、熱方程式 1 回 (Eigen。results/cpu-eigen/pde.json の repeats)。ADI のソルバ比較 (results-adi/) は 3 回。
 results-adi/ (2026-11-22)。同じ ADI (同じ格子、時間刻み、離散厳密解) を、ソルバだけ替えて測った。三重対角は自前の Thomas 法カーネル 15.7 ms、密な伝播行列は FP64 2689 ms、Ozaki 169.5 ms。
 
 ---
@@ -665,11 +677,14 @@ results-adi/ (2026-11-22)。同じ ADI (同じ格子、時間刻み、離散厳�
 <div class="simple-box dense">
 
 * NVIDIA の量子化学ライブラリ cuEST は Ozaki scheme を使う (らしい)
-* 熱拡散のような典型的な偏微分方程式の数値計算で高パフォーマンスを示したことに可能性を感じている (似たような例題は山ほどあるはず！)
+* 偏微分方程式でも、**密行列が出る解法** (スペクトル法、境界要素法など) なら効く見込み。未検証だけど、試したい例題は山ほどある！
 
 </div>
 
 Note:
+統計力学の例 (聞かれたら): 2D イジング模型の転送行列法。幅 L の帯なら転送行列 T は 2^L × 2^L で、要素がすべて正の密行列。分配関数 Z = Tr T^M を、T の 2 乗を繰り返して計算すれば DGEMM になる。テンソル繰り込み群 (TRG / HOTRG) も、テンソルの縮約は行列積。
+ただし、同じ問題でも解き方で変わる。最大固有値だけをべき乗法で求めるなら行列とベクトルの積 (メモリ律速) で、SVD や固有値分解の部分は速くなりにくい (固有値は 1.4 倍)。モンテカルロ法 (メトロポリス法) は局所的なスピン反転で行列積が出ない (ステンシルと同じ側)。どれも今回は測っていない。
+偏微分方程式を差分や有限要素で離散化した行列は疎行列で、今回の熱方程式も実用では三重対角ソルバのほうが速い (注意点のスライド)。密行列が出るのは、スペクトル選点法 (微分の行列が密)、境界要素法、疎行列の直接法の中のフロント行列など。どれも今回は測っていない。
 cuEST のドキュメント: 密度フィッティングの交換項 (DF-K) で、速いと見込まれるときに fixed-point (Ozaki-I または II) を使う。CUDA 13.0.2 以降。
 FP32 で足りる例 (入れるかは要相談): ECMWF は 2021 年の IFS Cycle 47r2 で HRES と ENS の予報を単精度にした (計算資源の約 4 割を捻出)。ただし解析 (データ同化) は倍精度のままで、行列の逆行列計算など一部の処理も倍精度が要る。
 悪条件の正規方程式などは、行列積を FP64 相当にしても直らない (条件数が 2 乗になるのが原因)。精度が要るならアルゴリズム側 (QR、反復改良) で対処する。
@@ -695,7 +710,10 @@ FP32 で足りる例 (入れるかは要相談): ECMWF は 2021 年の IFS Cycle
 </div>
 
 Note:
+リンク先は尾崎先生の講義資料 (参考文献 8)。Ozaki のエミュレーションを使ったブロック Cholesky の性能と残差 (スライド 105〜106) と、cuSOLVER の各ルーチンの性能比の表 (スライド 109、RTX 5060 Ti) が載っている。
 疎行列の直接法: supernodal / multifrontal 法では、フロント行列の密な分解と更新が計算の大半を占める。
+INT8 の縮小の出典: NVIDIA の HGX のページ (参考文献 7 の HGX Platform) の表で、INT8 Tensor Core は HGX B200 が 72 POPS、HGX B300 が 3 POPS (どちらも 8 GPU のボードで sparse の値。dense はその半分)。1 GPU の dense に直すと 4.5 POPS → 0.19 POPS で、約 1/24。同じ表で FP8/FP6 は両方 72 PFLOPS (sparse)、FP4 の dense は 72 → 108 PFLOPS。次の世代の Rubin GPU は、INT8 250 TOPS (dense) に対して NVFP4 推論 50 PFLOPS。確認日 2026-11-22。
+尾崎先生の講義資料 (参考文献 8、スライド 117) も同じ表を引いて、「B300 以降では重心が NVFP4 / FP8 側へ移っている」と書いている。
 FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 命令を使わずに DGEMM をエミュレートしている。
 
 ---
@@ -707,9 +725,9 @@ FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 �
 <div class="summary-list">
 
 1. GeForce の FP64 は FP32 の 1/64。RTX 5080 でも CPU の 2.5 倍どまり
-2. CUDA 13 の Ozaki scheme (環境変数 1 つ) で、FP64 の行列積が **19 倍** (CPU の 48 倍)。誤差はむしろ小さい
+2. CUDA 13 の Ozaki scheme (わずかな環境変数で有効) で、FP64 の行列積が **19 倍** (CPU の 48 倍)。誤差はむしろ小さい
 3. 速くなるのは行列積と、それで組み立てた計算 (LU は 4.9 倍)。**密な行列積が主役の問題**が狙い目
-4. **物理の数値シミュレーションで役に立つ例はいっぱい見つけられそう**、今回は性能評価のために離散厳密解が得られる熱方程式を解いた
+4. **密行列が出る物理の計算なら、役に立つ例はいっぱい見つけられそう**。今回の熱方程式は、丸め誤差を測るための例題として解いた
 
 </div>
 
@@ -725,7 +743,7 @@ FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 �
 
 </div>
 
-<img src="assets/images/qrcode.png" width="200px">
+<img src="assets/images/qrcode.png" width="310" height="310" alt="物理学集会の Discord サーバーへの招待の QR コード" style="image-rendering: pixelated;">
 
 ---
 
@@ -758,13 +776,16 @@ Note:
 5. E. Frantar, S. Ashkboos, T. Hoefler, D. Alistarh, "GPTQ: Accurate post-training quantization for generative pre-trained transformers," *ICLR* (2023). arXiv:2210.17323
 6. DeepSeek-AI, "DeepSeek-V3 Technical Report," arXiv:2412.19437 (2024)
 7. NVIDIA, cuBLAS documentation; cuSOLVER documentation "Floating Point Emulation"; CUDA Toolkit Release Notes (13.0 Update 2, 13.4); cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"; HGX Platform
+8. 尾崎克久, 「HPC環境における行列積のエミュレーション（２）」, 第15回計算科学技術特論B (2026) 講義資料, 高度情報科学技術研究機構 (RIST) HAIRDESC 主催, 2026-07-23
 
 </div>
 
 Note:
 確認日 2026-11-21。
+8 は 2026-11-22 に PDF (69 ページ) を取得して、表紙 (題、日付、主催) とスライド 105〜109 (ブロック Cholesky の性能と残差、cuSOLVER の性能比の表)、117 (INT8 Tensor Core の世代ごとの推移) を確認した。URL は「これからの期待」のスライドのリンク。
 5 は ar5iv の HTML 版で Table 3、6 は arXiv の HTML 版で Appendix B.1 を確認した。
 cuSOLVER は 2026-11-22 に 13.5 版を確認 (手元は 13.4.2 同梱の 12.3.4)。
+HGX のページは 2026-11-22 に再確認 (FP64 は B300 10 / B200 296 TFLOPS のまま。INT8 の行も確認)。
 URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cusolver/ 、docs.nvidia.com/cuda/cuest/gemm_emulation.html 、docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html 、nvidia.com/en-us/data-center/hgx/
 
 ---
@@ -775,7 +796,7 @@ URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cusolver/ 、docs.nvid
 <table>
 <tr><th>条件</th><th>主なカーネル</th><th>中身</th></tr>
 <tr><td>GPU FP64</td><td><code>cutlass_80_tensorop_d884gemm</code></td><td>FP64 Tensor Core (DMMA)</td></tr>
-<tr><td>Ozaki on</td><td><code>prolog_mod_dfma</code></td><td>法ごとの余りに分解</td></tr>
+<tr><td>GPU Ozaki</td><td><code>prolog_mod_dfma</code></td><td>法ごとの余りに分解</td></tr>
 <tr><td></td><td><code>nvjet_sm120_biu_mma</code></td><td>INT8 Tensor Core の行列積</td></tr>
 <tr><td></td><td><code>inverse_scaling_mrc_kernel</code></td><td>混合基数変換で復元、FP64 に戻す</td></tr>
 </table>
@@ -803,7 +824,7 @@ cusolverDnSetEmulationStrategy(handle, CUDA_EMULATION_STRATEGY_PERFORMANT);
 
 <div class="results-box dense">
 <table>
-<tr><th></th><th>GPU FP64 のとき</th><th>Ozaki on のとき</th></tr>
+<tr><th></th><th>GPU FP64</th><th>GPU Ozaki</th></tr>
 <tr><td>LU</td><td>行列積 89%</td><td>Ozaki-II 29〜42%</td></tr>
 <tr><td>QR</td><td>行列積 96%</td><td>Ozaki-II 68% (eager)</td></tr>
 <tr><td>固有値</td><td>行列積 47%</td><td>残り (三重対角化など) は速くならない</td></tr>
@@ -820,8 +841,8 @@ cusolverDnSetEmulationStrategy(handle, CUDA_EMULATION_STRATEGY_PERFORMANT);
 Note:
 results-cusolver/nsys/cusolver_n8192 (2026-11-22)。% は 1 回の呼び出しの GPU カーネル時間に占める割合。Ozaki-II = oz2_ の付くカーネル + INT8 Tensor Core の行列積。
 QR は performant だと行列積の 75% が FP64 のまま。幅の狭い行列積は performant がエミュレーションしない (cuBLAS 単体で、幅 256 以下は FP64 のままだった)。
-LU は Ozaki on でパネル分解のカーネルも変わる (getrf_pivot → getf5_kernel)。N = 8192 では速くなった分はすべて行列積 (FP64 GEMM 449 ms → performant で Ozaki-II 42 ms + FP64 GEMM 19 ms。パネル分解などは 48 ms → 71 ms に増える) だが、N = 2048 では Ozaki-II は時間の 8% だけで、Ozaki と算法の変更の寄与を分けられない (cusolver_n2048)。
-cuBLAS 単体の SYRK (N = 8192) は Ozaki on で 2.9 倍になり、時間の 19% が Ozaki-II、80% が FP64 の SYRK カーネル。potrf の中の SYRK が速くならない理由は未確認。
+LU は GPU Ozaki でパネル分解のカーネルも変わる (getrf_pivot → getf5_kernel)。N = 8192 では速くなった分はすべて行列積 (FP64 GEMM 449 ms → performant で Ozaki-II 42 ms + FP64 GEMM 19 ms。パネル分解などは 48 ms → 71 ms に増える) だが、N = 2048 では Ozaki-II は時間の 8% だけで、Ozaki と算法の変更の寄与を分けられない (cusolver_n2048)。
+cuBLAS 単体の SYRK (N = 8192) は GPU Ozaki で 2.9 倍になり、時間の 19% が Ozaki-II、80% が FP64 の SYRK カーネル。potrf の中の SYRK が速くならない理由は未確認。
 
 ---
 
@@ -883,9 +904,9 @@ ADI は 1 ステップの実測 (中央値)。三重対角ソルバは results-a
 <tr><th>1 ステップの時間 [ms]</th><th>N = 1024</th><th>2048</th><th>4096</th><th>8192</th></tr>
 <tr><td>三重対角: 自前の Thomas 法</td><td>0.72</td><td>1.5</td><td>6.0</td><td><b>16</b></td></tr>
 <tr><td>三重対角: cuSPARSE</td><td>5.7</td><td>14</td><td>53</td><td>111</td></tr>
-<tr><td>密な伝播行列: Ozaki</td><td>1.4</td><td>5.7</td><td>29</td><td><b>169</b></td></tr>
+<tr><td>密な伝播行列: GPU Ozaki</td><td>1.4</td><td>5.7</td><td>29</td><td><b>169.5</b></td></tr>
 <tr><td>密な伝播行列: GPU FP64</td><td>6.9</td><td>45</td><td>338</td><td>2689</td></tr>
-<tr><td>密な LU で毎回解く: Ozaki</td><td>11</td><td>35</td><td>146</td><td>693</td></tr>
+<tr><td>密な LU で毎回解く: GPU Ozaki</td><td>11</td><td>35</td><td>146</td><td>693</td></tr>
 </table>
 </div>
 
@@ -937,7 +958,7 @@ results-adi/ (2026-11-22、ドライバ 595.99.02)。同じ Peaceman–Rachford 
 <div class="simple-box dense">
 
 * コードとデータ: [github.com/s-sasaki-earthsea-wizard/vrc-ozaki-scheme-LT](https://github.com/s-sasaki-earthsea-wizard/vrc-ozaki-scheme-LT)
-* `make build && make bench` で全条件を測り直せる (Docker + NVIDIA Container Toolkit)
+* どの測定も make ターゲットで測り直せる (Docker + NVIDIA Container Toolkit)
 
 </div>
 
@@ -966,6 +987,9 @@ results-adi/ (2026-11-22、ドライバ 595.99.02)。同じ Peaceman–Rachford 
       display: 'flex',
 
       // Learn about plugins: https://revealjs.com/plugins/
+      // KaTeX comes from jsDelivr; pin the version instead of following @latest.
+      katex: { version: '0.19.1' },
+
       plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
     });
 

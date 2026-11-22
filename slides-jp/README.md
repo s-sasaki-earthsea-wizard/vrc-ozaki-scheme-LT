@@ -3,7 +3,7 @@
 ## 概要
 
 VRChat 物理学集会の LT「ゲーミング GPU で倍精度の行列積を速くする 〜整数の Tensor Core で FP64 を計算する Ozaki scheme〜」のスライド。
-本文は `index.html` (Markdown を `<textarea>` に書く)。数値の出どころはリポジトリ直下の `results/`、`results-phi/`、`results-fortran/` で、各スライドの発表者ノート (`Note:` 以下) に、どの実行の値かを書いてある。
+本文は `index.html` (Markdown を `<textarea>` に書く)。数値の出どころはリポジトリ直下の `results/`、`results-phi/`、`results-fortran/`、`results-cusolver/`、`results-adi/` で、各スライドの発表者ノート (`Note:` 以下) に、どの実行の値かを書いてある。
 
 [lt-slide-template](https://github.com/s-sasaki-earthsea-wizard/lt-slide-template) の「水彩の地図帳」テーマ (2026-11、commit `45cd3ad`) を使っている。
 
@@ -41,7 +41,8 @@ make slides SLIDES_BIND=0.0.0.0    # 別のマシンのブラウザから見る 
 
 - 表紙のイラストは `assets/images/title.png` を 16:9 の絵に差し替える (今は白一色のプレースホルダー。下 192 px は題の帯で隠れる)
 - 配色を変えるときは `styles/custom-style.css` の `--atlas-*` 変数を変える
-- 数式は KaTeX。reveal.js の math プラグインが jsDelivr から KaTeX を読み込むので、数式の表示にはネットワークが要る
+- 数式は KaTeX。reveal.js の math プラグインが jsDelivr から KaTeX 0.19.1 を読み込むので、数式の表示にはネットワークが要る。
+  版は `index.html` の `Reveal.initialize` (`katex: { version: ... }`) で固定している
 
 ### フォントのサブセットを作り直す
 
