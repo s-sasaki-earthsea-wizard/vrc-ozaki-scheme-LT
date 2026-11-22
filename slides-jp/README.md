@@ -2,7 +2,7 @@
 
 ## 概要
 
-VRChat 物理学集会の LT「ゲーミング GPU で倍精度の行列積を速くする 〜整数の Tensor Core で FP64 を計算する Ozaki scheme〜」のスライド。
+VRChat 物理学集会の LT「物理シミュレーションの強い味方!? GeForce GPUで尾崎スキームを試してみた! 〜速い！正確！でも……？〜」のスライド。
 本文は `index.html` (Markdown を `<textarea>` に書く)。数値の出どころはリポジトリ直下の `results/`、`results-phi/`、`results-fortran/`、`results-cusolver/`、`results-adi/` で、各スライドの発表者ノート (`Note:` 以下) に、どの実行の値かを書いてある。
 
 [lt-slide-template](https://github.com/s-sasaki-earthsea-wizard/lt-slide-template) の「水彩の地図帳」テーマ (2026-11、commit `45cd3ad`) を使っている。
@@ -39,7 +39,7 @@ make slides SLIDES_BIND=0.0.0.0    # 別のマシンのブラウザから見る 
 1280×720 (16:9) の「水彩の地図帳」テーマ。各スライドの下端に、章名・進捗バー・ページ番号のフッターが出る。
 章の区切り方や部品の使い方は、リポジトリ直下の `CLAUDE.md` の「スライド作成」にまとめてある。
 
-- 表紙のイラストは `assets/images/title.png` を 16:9 の絵に差し替える (今は白一色のプレースホルダー。下 192 px は題の帯で隠れる)
+- 表紙のイラストは `assets/images/title.png` (16:9)。題の帯より上 (1280×528) に敷くので 192 px 切れる。どこを見せるかは `index.html` の img の `object-position` で選ぶ (今は上を 90 px 切っている)。題を `<br>` で 2 行にすると、帯に収まるよう文字が小さくなる
 - 配色を変えるときは `styles/custom-style.css` の `--atlas-*` 変数を変える
 - 数式は KaTeX。reveal.js の math プラグインが jsDelivr から KaTeX 0.19.1 を読み込むので、数式の表示にはネットワークが要る。
   版は `index.html` の `Reveal.initialize` (`katex: { version: ... }`) で固定している
@@ -84,4 +84,4 @@ decktape --size 1920x1080 index.html slides.pdf
 | reveal.js (`dist/`、`plugin/`、`css/`、`js/` など) | MIT License, Copyright (C) 2011-2024 Hakim El Hattab |
 | フォント (`vendor/fonts/`): Shippori Mincho B1、Zen Maru Gothic | SIL Open Font License 1.1。本文は同じフォルダの `OFL-*.txt` |
 | テーマ (`styles/custom-style.css`) と `index.html` のフッター処理 | lt-slide-template (Apache License 2.0 またはそれ以降) |
-| 画像 (`assets/images/`) | 使っているのは `icon_circle.png` (発表者のアバター) と `qrcode.png` (物理学集会)。`title.png` は白一色のプレースホルダー (lt-slide-template のもの) |
+| 画像 (`assets/images/`) | 使っているのは `title.png` (表紙のイラスト。画像生成 AI で作成)、`icon_circle.png` (発表者のアバター)、`qrcode.png` (物理学集会) |

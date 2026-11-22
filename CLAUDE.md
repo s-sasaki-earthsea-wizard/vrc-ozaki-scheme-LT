@@ -44,7 +44,7 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
   密な LU Ozaki 692.5 ms。三重対角が Ozaki の 10.8x 速い。三重対角行列を密行列として getrf しても Ozaki は効かない (FP64 に戻る)
 - [ ] スライド作成: ドラフト (本編 25 枚 + Appendix 10 枚) を `feature/slides-draft` で作成中。
   導入は物理 (偏微分方程式 → 陰解法 → 行列 → GPU と精度 → Ozaki の噂) から入る構成。
-  表紙のイラスト、スライド用の図、FP32 での ADI の測定は未着手
+  表紙のイラストは差し替え済み。スライド用の図、FP32 での ADI の測定は未着手
 
 ## 言語設定
 
@@ -71,7 +71,9 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
   本文はフッター (上端 652 px) より上に収める。はみ出したら文を削るか図を小さくする
 - **章とフッター。** 章の最初のスライドに `<!-- .slide: data-chapter="章名" -->` を書くと、次の章までがその章になる。
   表紙は `class="title-slide"`、Appendix の扉は `class="divider" data-appendix="true"` (ここから先は章名だけ出す)
-- **表紙のイラスト** は `slides-jp/assets/images/title.png` を 16:9 の絵に差し替える (今は白一色のプレースホルダー)。下 192 px は題の帯で隠れる
+- **表紙のイラスト** は `slides-jp/assets/images/title.png` (16:9、画像生成 AI で作成)。絵は題の帯より上 (1280×528) に cover で敷くので、16:9 なら 192 px 切れる。
+  どこを見せるかは `index.html` の img の `object-position` で選ぶ (今は上を 90 px 切り、手元の GPU を見せている)。
+  題を `<br>` で 2 行にすると、帯に収まるよう 44 px に縮む (`.title-band h1:has(br)`)
 - 手元での表示は `make slides` (http://localhost:8000、`SLIDES_PORT` / `SLIDES_BIND` で変更)
 - フォントは `slides-jp/vendor/fonts` に同梱したサブセット。**スライドを書いたら `make fonts` を流す** (`scripts/subset-fonts.sh`)
 - スライドの区切りは「`---` だけの行」。発表者ノートは `Note:` の行から下 (`note:` / `notes:` という文字列を本文に書かない)
