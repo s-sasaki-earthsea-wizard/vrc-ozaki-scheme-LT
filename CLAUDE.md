@@ -38,8 +38,8 @@ CUDA 12 環境との対照実験で定量評価する。成果は VRChat 物理�
 - [x] C++/Eigen の CPU ベースライン: Eigen 比で GPU native 2.5x、GPU Ozaki 48x (DGEMM N=16000)、ADI 39x
 - [x] Fortran + NVBLAS の drop-in: 再ビルドなしで Ozaki-II が動く。OpenBLAS 比 10.4x (N=16000)。
   PCIe x4 のため転送が約 7 割。スライドでは Appendix に置いた
-- [x] cuSOLVER (2026-11-22、ドライバ 595.99.02): math mode を API で指定すると LU は 4.9x (N=12000)、QR 最大 2.0x、
-  eigh 最大 1.3x、Cholesky 1.0〜1.1x (potrf の約 8 割が FP64 の SYRK のまま)。10 月の「速くならない」は環境変数だけで切り替えた誤り
+- [x] cuSOLVER (2026-11-22、ドライバ 595.99.02): math mode を API で指定すると LU は 4.9x (N=12000)、QR 最大 2.4x、
+  eigh 最大 1.4x (どちらも N=12000、追加の実行)、Cholesky 1.0〜1.1x (potrf の約 8 割が FP64 の SYRK のまま)。10 月の「速くならない」は環境変数だけで切り替えた誤り
 - [x] ADI のソルバ比較 (2026-11-22): N=8192 の 1 ステップは三重対角ソルバ 15.7 ms、伝播行列 Ozaki 169.5 ms (FP64 2689 ms)、
   密な LU Ozaki 692.5 ms。三重対角が Ozaki の 10.8x 速い。三重対角行列を密行列として getrf しても Ozaki は効かない (FP64 に戻る)
 - [ ] スライド作成: ドラフト (本編 25 枚 + Appendix 10 枚) を `feature/slides-draft` で作成中。

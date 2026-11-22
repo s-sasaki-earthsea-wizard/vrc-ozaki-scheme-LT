@@ -118,7 +118,7 @@
 | CPU (C++/Eigen, 14 スレッド) | DGEMM 0.30–0.36 TFLOPS、OpenBLAS は 0.21–0.38 TFLOPS。Eigen 比で GPU native は **2.2–2.6x**、GPU Ozaki は **16–48x** (φ 掃引を含む) |
 | CPU の PDE | ADI: GPU Ozaki が Eigen 比 11.7–39x。FTCS: GPU は Ozaki と無関係に 6.5–18x (メモリ帯域の差) |
 | CPU の精度 | Eigen / OpenBLAS の scaled err は 0.2–0.9u (φ=0.5)、N=8000・φ=4 で 25–27u。Ozaki (0.05–1.9u) はどちらより小さい |
-| cuSOLVER (math mode を API で指定) | LU 1.4–4.9x (N=2048–12000)、QR 最大 2.0x、eigh 最大 1.3x、Cholesky 1.0–1.1x。cuBLAS の環境変数では切り替わらない (2026-11-22、[results-cusolver/report.md](results-cusolver/report.md)) |
+| cuSOLVER (math mode を API で指定) | LU 1.4–4.9x (N=2048–12000)、QR 最大 2.4x、eigh 最大 1.4x、Cholesky 1.0–1.1x。cuBLAS の環境変数では切り替わらない (2026-11-22、[results-cusolver/report.md](results-cusolver/report.md)) |
 | ADI のソルバ比較 (N=8192、1 ステップ) | 三重対角ソルバ 15.7 ms、伝播行列 Ozaki 169.5 ms (FP64 2689 ms)、密な LU Ozaki 692.5 ms (FP64 5536 ms)。三重対角が Ozaki の 10.8x 速い (2026-11-22、[results-adi/report.md](results-adi/report.md)) |
 | CPU のスレッド | 14 (P+E) が DGEMM / ADI で最速。16 (LP-E コアを含む) は Eigen で約 3 倍遅くなる。FTCS (メモリ律速) は 6 (P のみ) が最速 |
 
@@ -198,12 +198,15 @@ cuSOLVER のハンドルごとに `cusolverDnSetMathMode(handle, CUSOLVER_FP64_E
   残差の計算自体にも丸め誤差があるので、比べるのは同じ条件の中のモードどうしだけ
 
 結果 (RTX 5080、ドライバ 595.99.02、2026-11-22)。倍率は default の時間を、emu-performant と emu-eager の速いほうで割ったもの。
+QR と eigh の N=12000 は、本体の実行 (`--qr-eigh-max-n 8192`) のあとに `cuda13-native` だけで追加した別の実行
+(`cusolver-qr-eigh-n12000.json`、コマンドは `run_cusolver_benchmarks.sh` の冒頭) で、入力の行列は LU の N=12000 と同じ。
+`report_cusolver.py` は本体にない (ルーチン, N, モード) だけをこのファイルから補う。
 
 | ルーチン | N=2048 | 4096 | 8192 | 12000 |
 |---|---:|---:|---:|---:|
 | LU (solve) | 1.44x | 2.01x | 3.49x | **4.94x** |
-| QR | 1.12x | 1.35x | 1.97x | - |
-| eigh | 1.11x | 1.24x | 1.33x | - |
+| QR | 1.12x | 1.35x | 1.97x | 2.39x |
+| eigh | 1.11x | 1.24x | 1.33x | 1.41x |
 | Cholesky | 1.11x | 1.09x | 1.03x | 1.04x |
 
 - 精度は default と同じ桁 (LU の後退誤差は 8.9–54u、Cholesky の再構成誤差は 3 桁まで一致、QR はむしろ小さい)
@@ -331,6 +334,7 @@ results-fortran/
 
 results-cusolver/
 ├── <condition>/      # env.json、blas3.json、cusolver.json (cuda13-native / cuda13-emu)、*.log
+│                     # cuda13-native/cusolver-qr-eigh-n12000.json: QR / eigh の N=12000 (追加の実行)
 ├── nsys/             # *.nsys-rep と NVTX 範囲ごとのカーネル集計 CSV (*_nvtx_kern_sum.csv)
 └── report.md         # 時間・精度・環境変数の確認・Level-3・カーネルの表
 
