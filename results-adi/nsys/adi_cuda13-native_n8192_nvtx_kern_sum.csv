@@ -1,0 +1,148 @@
+NVTX Range,Style,PID,TID,NVTX Inst,Kern Inst,Total Time (ns),Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Kernel Name
+,,93,93,0,222,12712461580,57263340.5,3046933.0,114625,1347984982,155425694.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+,,93,93,0,7,9432291857,1347470265.3,1347494031.0,1347333912,1347597923,91321.4,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_tn_align1>(T1::Params)
+,,93,93,0,1320,5053288381,3828248.8,488131.5,29088,84519644,14366483.8,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+,,93,93,0,80,1722949220,21536865.3,21536757.0,21525943,21548410,5489.7,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x64_16x4_nn_align1>(T1::Params)
+,,93,93,0,1,1347794561,1347794561.0,1347794561.0,1347794561,1347794561,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nt_align1>(T1::Params)
+,,93,93,0,320,709596462,2217488.9,2216625.0,2215213,2222766,1828.9,"void kernel_trsm_l_mul32<double, (int)8, (bool)1, (bool)0, (bool)0, (bool)0>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+,,93,93,0,400,345350815,863377.0,898599.0,623365,902373,78221.7,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)1>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+,,93,93,0,512,156171550,305022.6,305106.0,295874,314723,5027.0,"void getrf_pivot<getrf_params_<double, (int)512, (int)2, (int)512, (int)64, (int)8>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+,,93,93,0,2048,66159968,32304.7,32288.0,32192,32544,67.3,"void tiled_diag_pivot_x_few<double, double>(T1 *, const bool *, const T1 *, const T1 *, const T1 *, int, int, int)"
+,,93,93,0,18,65886493,3660360.7,3308985.5,3246329,4252577,461150.1,void pcrGlobalMemKernel_manyRhs<double>(pcrGlobalMemParams_t<T1>)
+,,93,93,0,256,56157533,219365.4,219985.5,209121,230914,6024.5,"void getrf_pivot<getrf_params_<double, (int)256, (int)2, (int)512, (int)64, (int)8>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+,,93,93,0,2,25784615,12892307.5,12892307.5,12892164,12892451,202.9,"void crGlobalBottomKernel_multiple<double, (bool)1>(const T1 *, const T1 *, const T1 *, const T1 *, int, T1 *, int, int, int, int)"
+,,93,93,0,16,25357764,1584860.3,1584282.0,1571722,1598059,11936.4,"void getrf_pivot<getrf_params_<double, (int)1024, (int)2, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+,,93,93,0,1408,25250728,17933.8,12096.0,11936,37249,8987.1,"void trsm_left_kernel<int, double, (int)256, (int)4, (bool)1, (bool)0, (bool)0, (bool)0, (bool)1>(cublasTrsmParams<T1, T2>, T2, const T2 *, int)"
+,,93,93,0,4,23961561,5990390.3,5993790.5,5774636,6199344,239749.6,"void crGlobalForIterations_multiple<double, (bool)1>(const T1 *, const T1 *, const T1 *, const T1 *, int, T1 *, T1 *, T1 *, T1 *, int, int, int, int)"
+,,93,93,0,72,21837327,303296.2,229378.0,222018,465636,107009.5,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_nn_align1>(T1::Params)
+,,93,93,0,2,19183732,9591866.0,9591866.0,9587530,9596202,6132.0,"void crGlobalBottomKernel_multiple<double, (bool)0>(const T1 *, const T1 *, const T1 *, const T1 *, int, T1 *, int, int, int, int)"
+,,93,93,0,12,18576953,1548079.4,1605819.0,1391369,1640426,107881.1,cupy_copy__float64_float64
+,,93,93,0,16,17383248,1086453.0,1086391.5,1073831,1099048,12068.3,"void getrf_pivot<getrf_params_<double, (int)512, (int)3, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+,,93,93,0,328,15469769,47163.9,55504.0,15008,219265,37257.2,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x32_16x5_nn_align1>(T1::Params)
+,,93,93,0,16,14884094,930255.9,930181.5,920358,940230,9257.3,"void getrf_pivot<getrf_params_<double, (int)512, (int)2, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+,,93,93,0,2,13376296,6688148.0,6688148.0,6683092,6693204,7150.3,void pcrLastStageKernel_manyRhs<double>(pcrLastStageParams_t<T1>)
+,,93,93,0,8,12935091,1616886.4,1616827.0,1615562,1618858,964.5,"void getrf_pivot<getrf_params_<double, (int)512, (int)1, (int)512, (int)512, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+,,93,93,0,2,12794210,6397105.0,6397105.0,6380241,6413969,23849.3,thomas_columns
+,,93,93,0,2048,11807995,5765.6,5760.0,5728,5889,16.3,"void spike_local_reduction_x_few<double>(T1 *, T1 *, T1 *, T1 *, T1 *, T1 *, T1 *, T1 *, int, int)"
+,,93,93,0,2048,10719894,5234.3,5248.0,5184,5281,17.9,"void spike_GPU_back_sub_x_few<double>(T1 *, const T1 *, const T1 *, const T1 *, int, int)"
+,,93,93,0,88,10029666,113973.5,105040.5,53632,155393,33064.7,"void magma_sgemmEx_kernel<double, double, double, (bool)0, (bool)0, (int)6, (int)3, (int)5, (int)3, (int)3>(int, int, int, BatchedTensor, int, BatchedTensor, int, BatchedTensor, int, BatchedTensor, int, int, int, const T1 *, const T1 *, T1, T1, int, cublasLtEpilogue_t, int, const void *, long)"
+,,93,93,0,6,8515844,1419307.3,1413915.5,1344011,1517676,78781.0,apply_b_transposed
+,,93,93,0,2,8514242,4257121.0,4257121.0,4254209,4260033,4118.2,void pcrGlobalMemKernelFirstPass_manyRhs<double>(pcrGlobalMemFirstPassParams_t<T1>)
+,,93,93,0,10,7340338,734033.8,671573.0,670309,829381,81541.1,"void laswp_kernel2<double, (bool)0, int>(int, T1 *, unsigned long, int, int, const T3 *, int)"
+,,93,93,0,128,6912073,54000.6,55104.5,45632,58273,3486.9,"void ipiv_lower_diag<double, (int)512>(int, void *, int, int *, int)"
+,,93,93,0,2,6681268,3340634.0,3340634.0,3339450,3341818,1674.4,"void crCopyMemoryGlobal_multiple<double>(T1 *, int, const T1 *, int, int, int, int)"
+,,93,93,0,2048,5395437,2634.5,2624.0,2624,2657,15.0,"void spike_GPU_local_solving_x_few<double>(T1 *, const T1 *, const T1 *, const T1 *, int, int)"
+,,93,93,0,2048,4708320,2299.0,2304.0,2272,2464,13.6,"void spike_GPU_global_solving_x_few<double>(T1 *, T1 *, T1 *, int)"
+,,93,93,0,2048,3980125,1943.4,2080.0,1472,2688,269.5,"void foward_marshaling_bxb_rhs<double>(T1 *, const T1 *, int, int, int, int, int, int, T1)"
+,,93,93,0,2048,2021585,987.1,992.0,928,1088,29.2,"void back_marshaling_bxb_rhs<double>(T1 *, const T1 *, int, int, int, int, int, int)"
+,,93,93,0,768,1525706,1986.6,1952.0,1856,2560,123.8,"void ipiv_lower_small<double, (int)64>(int, void *, int, long *, int, int)"
+,,93,93,0,128,719173,5618.5,5632.0,5440,5856,72.3,"void create_pivot_v2<(int)512>(int, int *, long *, int)"
+,,93,93,0,48,561191,11691.5,10816.0,10400,14272,1367.6,"void ipiv_lower_small<double, (int)256>(int, void *, int, long *, int, int)"
+,,93,93,0,8,193314,24164.3,24144.0,24065,24384,105.8,"void ipiv_lower_small<double, (int)512>(int, void *, int, long *, int, int)"
+,,93,93,0,2,73696,36848.0,36848.0,36672,37024,248.9,"void tiled_diag_pivot_x1<double, double>(T1 *, T1 *, T1 *, T1 *, bool *, const T1 *, const T1 *, const T1 *, int, int)"
+,,93,93,0,18,20544,1141.3,928.0,768,1632,295.9,cupy_less__int32_int_bool
+,,93,93,0,8,13664,1708.0,1664.0,1056,2432,386.6,"void ipiv_64_to_32_ker<(int)128>(long, const long *, int *)"
+,,93,93,0,10,9312,931.2,960.0,608,1600,275.0,cupy_copy__int32_int32
+,,93,93,0,6,8960,1493.3,1392.0,1248,1824,250.1,"void foward_marshaling_bxb<double>(T1 *, const T1 *, int, int, int, T1)"
+,,93,93,0,10,7136,713.6,704.0,608,768,45.4,cupy_add__int32_int_int32
+,,93,93,0,8,6432,804.0,768.0,736,1120,129.6,"xxtrf4_set_info_ker(int, int *)"
+,,93,93,0,10,6400,640.0,608.0,512,768,108.8,"copy_info_kernel(int, int *)"
+,,93,93,0,6,6368,1061.3,1056.0,992,1152,65.3,cupy_equal__float64_float_bool
+,,93,93,0,8,5792,724.0,720.0,640,864,66.1,cupy_subtract__int32_int_int32
+,,93,93,0,6,5568,928.0,912.0,896,992,40.5,cupy_cub_all_pass1
+,,93,93,0,8,5504,688.0,704.0,640,704,24.2,cupy_greater__int32_int_bool
+,,93,93,0,6,5408,901.3,832.0,800,1088,134.9,cupy_cub_all_pass2
+,,93,93,0,6,3328,554.7,496.0,480,864,152.4,cupy_copy__float_float64
+:adi/dense-lu,PushPop,93,93,1,2,2695128060,1347564030.0,1347564030.0,1347538194,1347589866,36537.6,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_tn_align1>(T1::Params)
+:adi/dense-lu,PushPop,93,93,1,4,1349823677,337455919.3,337457627.5,337428564,337479858,21235.7,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:adi/dense-lu,PushPop,93,93,1,104,952898915,9162489.6,1521258.5,1519819,84502703,21929055.2,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+:adi/dense-lu,PushPop,93,93,1,16,344699247,21543702.9,21544078.5,21537917,21549851,3397.3,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x64_16x4_nn_align1>(T1::Params)
+:adi/dense-lu,PushPop,93,93,1,64,141887822,2216997.2,2216465.0,2215344,2220112,1446.6,"void kernel_trsm_l_mul32<double, (int)8, (bool)1, (bool)0, (bool)0, (bool)0>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:adi/dense-lu,PushPop,93,93,1,64,57529764,898902.6,898919.0,897670,900519,691.2,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)1>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:adi/dense-lu,PushPop,93,93,1,2,1353546,676773.0,676773.0,671653,681893,7240.8,"void laswp_kernel2<double, (bool)0, int>(int, T1 *, unsigned long, int, int, const T3 *, int)"
+:adi/dense-lu,PushPop,93,93,1,2,2080,1040.0,1040.0,1024,1056,22.6,cupy_copy__int32_int32
+:adi/dense-lu,PushPop,93,93,1,2,1888,944.0,944.0,928,960,22.6,cupy_less__int32_int_bool
+:adi/dense-lu,PushPop,93,93,1,2,1600,800.0,800.0,800,800,0.0,cupy_add__int32_int_int32
+:adi/dense-lu,PushPop,93,93,1,2,1152,576.0,576.0,576,576,0.0,"copy_info_kernel(int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,25,408712217,16348488.7,408995.0,114817,74585089,23237148.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,100,36063799,360638.0,223505.5,29120,5610470,606766.2,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,64,19516260,304941.6,305090.0,296162,314915,5103.2,"void getrf_pivot<getrf_params_<double, (int)512, (int)2, (int)512, (int)64, (int)8>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,10,7202066,720206.6,693685.0,624100,830021,73715.7,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)1>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,32,7023061,219470.7,219825.5,209666,229890,6056.2,"void getrf_pivot<getrf_params_<double, (int)256, (int)2, (int)512, (int)64, (int)8>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,2,3170102,1585051.0,1585051.0,1572619,1597483,17581.5,"void getrf_pivot<getrf_params_<double, (int)1024, (int)2, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,176,3156377,17934.0,12096.0,11936,37216,9012.6,"void trsm_left_kernel<int, double, (int)256, (int)4, (bool)1, (bool)0, (bool)0, (bool)0, (bool)1>(cublasTrsmParams<T1, T2>, T2, const T2 *, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,9,2729874,303319.3,229441.0,222081,464388,112712.1,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_nn_align1>(T1::Params)
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,2,2174000,1087000.0,1087000.0,1075304,1098696,16540.6,"void getrf_pivot<getrf_params_<double, (int)512, (int)3, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,41,1933772,47165.2,55553.0,15040,218850,37643.3,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x32_16x5_nn_align1>(T1::Params)
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,2,1859340,929670.0,929670.0,922406,936934,10272.8,"void getrf_pivot<getrf_params_<double, (int)512, (int)2, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,1634475,1634475.0,1634475.0,1634475,1634475,0.0,cupy_copy__float64_float64
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,1616011,1616011.0,1616011.0,1616011,1616011,0.0,"void getrf_pivot<getrf_params_<double, (int)512, (int)1, (int)512, (int)512, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,11,1253576,113961.5,105089.0,53760,155361,34475.9,"void magma_sgemmEx_kernel<double, double, double, (bool)0, (bool)0, (int)6, (int)3, (int)5, (int)3, (int)3>(int, int, int, BatchedTensor, int, BatchedTensor, int, BatchedTensor, int, BatchedTensor, int, int, int, const T1 *, const T1 *, T1, T1, int, cublasLtEpilogue_t, int, const void *, long)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,16,864166,54010.4,54945.0,46656,59745,3659.2,"void ipiv_lower_diag<double, (int)512>(int, void *, int, int *, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,96,190113,1980.3,1952.0,1856,2368,115.5,"void ipiv_lower_small<double, (int)64>(int, void *, int, long *, int, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,16,89952,5622.0,5632.0,5504,5728,54.5,"void create_pivot_v2<(int)512>(int, int *, long *, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,6,69056,11509.3,10800.0,10528,14144,1452.3,"void ipiv_lower_small<double, (int)256>(int, void *, int, long *, int, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,24256,24256.0,24256.0,24256,24256,0.0,"void ipiv_lower_small<double, (int)512>(int, void *, int, long *, int, int)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,2208,2208.0,2208.0,2208,2208,0.0,"void ipiv_64_to_32_ker<(int)128>(long, const long *, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,1472,1472.0,1472.0,1472,1472,0.0,cupy_less__int32_int_bool
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,768,768.0,768.0,768,768,0.0,"xxtrf4_set_info_ker(int, int *)"
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,736,736.0,736.0,736,736,0.0,cupy_subtract__int32_int_int32
+:adi/dense-lu:setup-getrf,PushPop,93,93,1,1,704,704.0,704.0,704,704,0.0,cupy_greater__int32_int_bool
+:adi/propagator,PushPop,93,93,1,2,2695994056,1347997028.0,1347997028.0,1347849892,1348144164,208081.7,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:adi/propagator-lu,PushPop,93,93,1,1,1347431906,1347431906.0,1347431906.0,1347431906,1347431906,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nt_align1>(T1::Params)
+:adi/propagator-lu,PushPop,93,93,1,1,1347317177,1347317177.0,1347317177.0,1347317177,1347317177,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_tn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,25,408579160,16343166.4,408642.0,114817,74553950,23228489.7,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,100,36062727,360627.3,223681.5,29120,5612324,606921.7,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,64,19520285,305004.5,305121.5,295970,313890,5180.2,"void getrf_pivot<getrf_params_<double, (int)512, (int)2, (int)512, (int)64, (int)8>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,10,7200046,720004.6,694228.5,623332,829573,73796.6,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)1>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,32,7019274,219352.3,219569.0,209442,229346,5956.5,"void getrf_pivot<getrf_params_<double, (int)256, (int)2, (int)512, (int)64, (int)8>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,2,3166964,1583482.0,1583482.0,1571146,1595818,17445.7,"void getrf_pivot<getrf_params_<double, (int)1024, (int)2, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,176,3155700,17930.1,12096.0,11936,37121,9014.1,"void trsm_left_kernel<int, double, (int)256, (int)4, (bool)1, (bool)0, (bool)0, (bool)0, (bool)1>(cublasTrsmParams<T1, T2>, T2, const T2 *, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,9,2730388,303376.4,229089.0,222242,465923,113042.6,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,2,2173134,1086567.0,1086567.0,1074439,1098695,17151.6,"void getrf_pivot<getrf_params_<double, (int)512, (int)3, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,41,1933487,47158.2,55553.0,15040,218913,37657.6,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x32_16x5_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,2,1860556,930278.0,930278.0,921286,939270,12716.6,"void getrf_pivot<getrf_params_<double, (int)512, (int)2, (int)512, (int)256, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,1618443,1618443.0,1618443.0,1618443,1618443,0.0,"void getrf_pivot<getrf_params_<double, (int)512, (int)1, (int)512, (int)512, (int)1>>(int, int, int, void *, int, long *, int, gmem_sum_slot<T1::data_type> *, unsigned int *, gmem_sum_slot<T1::data_type> *, unsigned int, unsigned int, unsigned int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,1407241,1407241.0,1407241.0,1407241,1407241,0.0,cupy_copy__float64_float64
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,11,1253865,113987.7,104992.0,53792,155265,34458.3,"void magma_sgemmEx_kernel<double, double, double, (bool)0, (bool)0, (int)6, (int)3, (int)5, (int)3, (int)3>(int, int, int, BatchedTensor, int, BatchedTensor, int, BatchedTensor, int, BatchedTensor, int, int, int, const T1 *, const T1 *, T1, T1, int, cublasLtEpilogue_t, int, const void *, long)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,16,865318,54082.4,55392.0,46496,58144,3378.8,"void ipiv_lower_diag<double, (int)512>(int, void *, int, int *, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,96,190210,1981.4,1952.0,1856,2336,116.2,"void ipiv_lower_small<double, (int)64>(int, void *, int, long *, int, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,16,89696,5606.0,5632.0,5440,5696,72.2,"void create_pivot_v2<(int)512>(int, int *, long *, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,6,69248,11541.3,10832.0,10464,14176,1499.9,"void ipiv_lower_small<double, (int)256>(int, void *, int, long *, int, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,24160,24160.0,24160.0,24160,24160,0.0,"void ipiv_lower_small<double, (int)512>(int, void *, int, long *, int, int)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,2272,2272.0,2272.0,2272,2272,0.0,"void ipiv_64_to_32_ker<(int)128>(long, const long *, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,1440,1440.0,1440.0,1440,1440,0.0,cupy_less__int32_int_bool
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,768,768.0,768.0,768,768,0.0,"xxtrf4_set_info_ker(int, int *)"
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,736,736.0,736.0,736,736,0.0,cupy_subtract__int32_int_int32
+:adi/propagator-lu:setup-getrf,PushPop,93,93,1,1,704,704.0,704.0,704,704,0.0,cupy_greater__int32_int_bool
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,2,674614533,337307266.5,337307266.5,337300305,337314228,9845.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,52,476271444,9159066.2,1520522.0,1519658,84472349,22028548.3,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,8,172276820,21534602.5,21534619.0,21528682,21541452,4443.1,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x64_16x4_nn_align1>(T1::Params)
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,32,71004875,2218902.3,2218494.0,2217070,2221646,1247.8,"void kernel_trsm_l_mul32<double, (int)8, (bool)1, (bool)0, (bool)0, (bool)0>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,32,28762009,898812.8,898693.5,897638,900486,817.0,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)1>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,1,1634954,1634954.0,1634954.0,1634954,1634954,0.0,cupy_copy__float64_float64
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,1,828678,828678.0,828678.0,828678,828678,0.0,"void laswp_kernel2<double, (bool)0, int>(int, T1 *, unsigned long, int, int, const T3 *, int)"
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,1,896,896.0,896.0,896,896,0.0,cupy_less__int32_int_bool
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,1,832,832.0,832.0,832,832,0.0,cupy_add__int32_int_int32
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,1,768,768.0,768.0,768,768,0.0,"copy_info_kernel(int, int *)"
+:adi/propagator-lu:setup-getrs,PushPop,93,93,1,1,704,704.0,704.0,704,704,0.0,cupy_copy__int32_int32
+:adi/tridiag-cusparse,PushPop,93,93,1,18,66112798,3672933.2,3305162.0,3248537,4255873,471634.9,void pcrGlobalMemKernel_manyRhs<double>(pcrGlobalMemParams_t<T1>)
+:adi/tridiag-cusparse,PushPop,93,93,1,2,25789096,12894548.0,12894548.0,12890756,12898340,5362.7,"void crGlobalBottomKernel_multiple<double, (bool)1>(const T1 *, const T1 *, const T1 *, const T1 *, int, T1 *, int, int, int, int)"
+:adi/tridiag-cusparse,PushPop,93,93,1,4,23954138,5988534.5,5991374.5,5772877,6198512,239446.9,"void crGlobalForIterations_multiple<double, (bool)1>(const T1 *, const T1 *, const T1 *, const T1 *, int, T1 *, T1 *, T1 *, T1 *, int, int, int, int)"
+:adi/tridiag-cusparse,PushPop,93,93,1,2,19170260,9585130.0,9585130.0,9583786,9586474,1900.7,"void crGlobalBottomKernel_multiple<double, (bool)0>(const T1 *, const T1 *, const T1 *, const T1 *, int, T1 *, int, int, int, int)"
+:adi/tridiag-cusparse,PushPop,93,93,1,2,13415624,6707812.0,6707812.0,6707636,6707988,248.9,void pcrLastStageKernel_manyRhs<double>(pcrLastStageParams_t<T1>)
+:adi/tridiag-cusparse,PushPop,93,93,1,2,8513730,4256865.0,4256865.0,4256801,4256929,90.5,void pcrGlobalMemKernelFirstPass_manyRhs<double>(pcrGlobalMemFirstPassParams_t<T1>)
+:adi/tridiag-cusparse,PushPop,93,93,1,2,6676756,3338378.0,3338378.0,3335770,3340986,3688.3,"void crCopyMemoryGlobal_multiple<double>(T1 *, int, const T1 *, int, int, int, int)"
+:adi/tridiag-cusparse,PushPop,93,93,1,2,2819637,1409818.5,1409818.5,1346954,1472683,88903.8,apply_b_transposed
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,66179136,32314.0,32289.0,32192,32544,74.2,"void tiled_diag_pivot_x_few<double, double>(T1 *, const bool *, const T1 *, const T1 *, const T1 *, int, int, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,11808952,5766.1,5760.0,5728,5952,18.5,"void spike_local_reduction_x_few<double>(T1 *, T1 *, T1 *, T1 *, T1 *, T1 *, T1 *, T1 *, int, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,10724179,5236.4,5248.0,5184,5281,18.8,"void spike_GPU_back_sub_x_few<double>(T1 *, const T1 *, const T1 *, const T1 *, int, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,5396200,2634.9,2624.0,2592,2688,15.2,"void spike_GPU_local_solving_x_few<double>(T1 *, const T1 *, const T1 *, const T1 *, int, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,4707785,2298.7,2304.0,2272,2400,13.7,"void spike_GPU_global_solving_x_few<double>(T1 *, T1 *, T1 *, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,3989372,1947.9,2080.0,1472,2656,279.2,"void foward_marshaling_bxb_rhs<double>(T1 *, const T1 *, int, int, int, int, int, int, T1)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2,2819254,1409627.0,1409627.0,1352587,1466667,80666.7,apply_b_transposed
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2048,2020302,986.5,992.0,928,1120,30.3,"void back_marshaling_bxb_rhs<double>(T1 *, const T1 *, int, int, int, int, int, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,2,73984,36992.0,36992.0,36992,36992,0.0,"void tiled_diag_pivot_x1<double, double>(T1 *, T1 *, T1 *, T1 *, bool *, const T1 *, const T1 *, const T1 *, int, int)"
+:adi/tridiag-cusparse-pivot,PushPop,93,93,1,6,8737,1456.2,1504.0,1280,1601,129.4,"void foward_marshaling_bxb<double>(T1 *, const T1 *, int, int, int, T1)"
+:adi/tridiag-thomas,PushPop,93,93,1,2,12855940,6427970.0,6427970.0,6416018,6439922,16902.7,thomas_columns
+:adi/tridiag-thomas,PushPop,93,93,1,2,2868502,1434251.0,1434251.0,1355211,1513291,111779.4,apply_b_transposed
