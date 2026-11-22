@@ -389,6 +389,7 @@ Note:
 cuBLAS のドキュメント: FP64 の fixed-point emulation は compute capability 8.x、9.0、10.x、11.0、12.x、CUDA 13.0u2 以降。13.4 のリリースノート: Ozaki-II は Ampere 以降で、Ozaki-I より速いときに使う。
 RTX 5080 では、エミュレーションが効いたときはいつも Ozaki-II が選ばれた (Nsight Systems で確認)。
 N = 512 では performant が FP64 のままになり、eager で強制すると 2.4 倍速かった (Appendix)。
+cuSOLVER (LU など) はこの環境変数では切り替わらない。ハンドルごとに API で指定する (結果の章)。
 注意: CUDA 13.5 のリリースノートに、C と D の leading dimension が違うときや split-K のときに誤った結果を返しうる既知の問題 (13.0u2 から) が載っている。今回の測定は誤差を毎回測っていて、異常は出ていない。
 
 ---
@@ -567,15 +568,51 @@ M = (I − aL)^−1 (I + aL)、a = α dt / 2 を事前に計算しておく。x 
 
 ---
 
-### 速くならないもの
+### 連立一次方程式 (LU) も速くなる
+
+<div class="results-box dense nowrap-table">
+<table>
+<tr><th>cuSOLVER (Ozaki / GPU FP64)</th><th>N = 4096</th><th>8192</th><th>12000</th></tr>
+<tr><td>LU 分解 (連立一次方程式)</td><td>2.0 倍</td><td>3.5 倍</td><td><b>4.9 倍</b></td></tr>
+<tr><td>QR 分解</td><td>1.3 倍</td><td>2.0 倍</td><td>-</td></tr>
+<tr><td>対称行列の固有値</td><td>1.2 倍</td><td>1.3 倍</td><td>-</td></tr>
+<tr><td>Cholesky 分解</td><td>1.1 倍</td><td>1.0 倍</td><td>1.0 倍</td></tr>
+</table>
+</div>
+
+<div class="simple-box dense">
+
+* **環境変数では切り替わらない。** `cusolverDnSetMathMode` で指定する
+* 誤差 (後退誤差など) は GPU FP64 と同じ桁
+
+</div>
+
+<div class="highlight-box">
+
+N = 12000 の連立一次方程式が 1.53 s → **0.31 s**
+
+</div>
+
+Note:
+results-cusolver/ (2026-11-22、ドライバ 595.99.02。ほかの結果は 590.48.01)。CuPy の cupy.linalg を、同じプロセスの中で math mode を切り替えて測った。
+倍率は performant と eager の速いほう (LU と Cholesky は performant、QR と固有値の 8192 は eager)。中央値、LU と Cholesky は 5 回、QR と固有値は 3 回。
+LU の後退誤差は N = 12000 で 5.3e-15 (FP64) と 5.4e-15 (Ozaki)。
+10 月の予備測定は cuBLAS の環境変数だけで切り替えていて、「変わらない」と見誤っていた。cuSOLVER のドキュメントに「cuBLAS の環境変数は cuSOLVER の中の cuBLAS ハンドルに効かない」とある。
+CuPy には math mode の API がないので、CuPy の cuSOLVER ハンドルに ctypes で設定した (Appendix)。
+PDE から出る行列は疎行列なので、この密な LU がそのまま効くのは境界要素法などの密行列の問題。
+
+---
+
+### 速くなるもの、ならないもの
 
 <div class="results-box">
 <table>
 <tr><th>計算</th><th>Ozaki on / off</th></tr>
 <tr><td>行列積 (DGEMM)</td><td>6.9〜19 倍</td></tr>
 <tr><td>熱方程式: 陰解法 ADI (行列積で回す)</td><td>4.8〜15.9 倍</td></tr>
+<tr><td>連立一次方程式: LU 分解 (cuSOLVER)</td><td>1.4〜4.9 倍</td></tr>
 <tr><td>熱方程式: 陽解法ステンシル</td><td>1.00 倍</td></tr>
-<tr><td>cuSOLVER: LU・Cholesky・QR・固有値</td><td>変わらず (予備測定)</td></tr>
+<tr><td>Cholesky 分解 (cuSOLVER)</td><td>1.0〜1.1 倍</td></tr>
 </table>
 </div>
 
@@ -587,8 +624,8 @@ Ozaki は「FP64 全般」ではなく「**FP64 の行列積**」を速くする
 
 Note:
 ステンシルは隣の 4 点を足すだけで行列積を使わない。GPU は CPU の 6.5〜18 倍速いが、これはメモリ帯域の差で Ozaki とは無関係。
-cuSOLVER は N = 4096 の予備測定 (cache/probe_cusolver.py、git 管理外)。同じ測定で GEMM は 11.6 倍になったのに、solve / cholesky / qr / eigh は Ozaki off と同じ時間だった。
-TODO: 数値を出すなら repeats を増やして取り直し、スクリプトを src/ に移してコミットする。
+LU は GPU FP64 のとき時間の 89% が行列積 (残りの行列の更新) で、そこが Ozaki-II になる。Cholesky は時間の約 8 割が SYRK (対称な行列積) の FP64 カーネルで、Ozaki を有効にしても変わらない (N = 8192 の Nsight Systems、Appendix)。
+cuSOLVER は N = 2048〜12000、results-cusolver/ (2026-11-22)。
 
 ---
 
@@ -616,7 +653,7 @@ Note:
 <div class="results-box nowrap-first">
 <table>
 <tr><th></th><th>大きな密行列積が主</th><th>それ以外</th></tr>
-<tr><td>FP64 が要る</td><td><b>Ozaki の本命</b><br>量子化学 (SCF など)<br>統計力学 (格子モデルなど)</td><td>速くならない<br>ステンシル、疎行列、cuSOLVER</td></tr>
+<tr><td>FP64 が要る</td><td><b>Ozaki の本命</b><br>量子化学 (SCF など)<br>統計力学 (格子モデルなど)<br>密な連立方程式 (境界要素法など)</td><td>速くならない<br>ステンシル、疎行列</td></tr>
 <tr><td>FP32 で足りる</td><td>深層学習 (低精度で回す)</td><td>FP32 で回す</td></tr>
 </table>
 </div>
@@ -639,7 +676,7 @@ FP32 で足りる例 (入れるかは要相談): ECMWF は 2021 年の IFS Cycle
 
 <div class="simple-box">
 
-* cuSOLVER (LU・固有値) に対応して、密な連立方程式や固有値問題も速く精度良く計算できれば夢が広がる
+* cuSOLVER の LU は今でも 4.9 倍。Cholesky や固有値も速くなれば、密な連立方程式や固有値問題に夢が広がる
   * [尾崎先生ご自身も研究を始めている！](https://hairdesc.jp/wp-content/uploads/2026/07/第15回20260723_尾崎先生0724差替え.pdf)
 * FP8 Tensor Core のみで完結する Ozaki-I も研究が進んでいる
   * AI 向け GPU は学習・推論の効率化のため FP8 や FP4 への計算力の集中が進んでいて、INT8 の処理能力は縮小傾向
@@ -667,7 +704,7 @@ FP8 版 Ozaki-I は Mukunoki (2025、arXiv:2508.00441)。RTX 5060 Ti で FP64 �
 
 1. GeForce の FP64 は FP32 の 1/64。RTX 5080 でも CPU の 2.5 倍どまり
 2. CUDA 13 の Ozaki scheme (環境変数 1 つ) で、FP64 の行列積が **19 倍** (CPU の 48 倍)。誤差はむしろ小さい
-3. 速くなるのは行列積だけ。**密な行列積が主役の問題**が狙い目
+3. 速くなるのは行列積と、それで組み立てた計算 (LU は 4.9 倍)。**密な行列積が主役の問題**が狙い目
 4. **物理の数値シミュレーションで役に立つ例はいっぱい見つけられそう**、今回は性能評価のために離散厳密解が得られる熱方程式を解いた
 
 </div>
@@ -716,14 +753,15 @@ Note:
 
 5. E. Frantar, S. Ashkboos, T. Hoefler, D. Alistarh, "GPTQ: Accurate post-training quantization for generative pre-trained transformers," *ICLR* (2023). arXiv:2210.17323
 6. DeepSeek-AI, "DeepSeek-V3 Technical Report," arXiv:2412.19437 (2024)
-7. NVIDIA, cuBLAS documentation; CUDA Toolkit Release Notes (13.0 Update 2, 13.4); cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"; HGX Platform
+7. NVIDIA, cuBLAS documentation; cuSOLVER documentation "Floating Point Emulation"; CUDA Toolkit Release Notes (13.0 Update 2, 13.4); cuEST documentation "GEMM emulation"; CUDA Programming Guide "Compute capabilities"; HGX Platform
 
 </div>
 
 Note:
 確認日 2026-11-21。
 5 は ar5iv の HTML 版で Table 3、6 は arXiv の HTML 版で Appendix B.1 を確認した。
-URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cuest/gemm_emulation.html 、docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html 、nvidia.com/en-us/data-center/hgx/
+cuSOLVER は 2026-11-22 に 13.5 版を確認 (手元は 13.4.2 同梱の 12.3.4)。
+URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cusolver/ 、docs.nvidia.com/cuda/cuest/gemm_emulation.html 、docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html 、nvidia.com/en-us/data-center/hgx/
 
 ---
 
@@ -749,6 +787,37 @@ URL: docs.nvidia.com/cuda/cublas/ 、docs.nvidia.com/cuda/cuest/gemm_emulation.h
 
 Note:
 results/nsys/kernels.md。カーネル名に oz2_ が入っていれば Ozaki-II と判定。
+
+---
+
+### cuSOLVER の中で動いたカーネル (N = 8192)
+
+<pre style="width: 100%; font-size: 0.8em;"><code class="language-c" data-trim>
+cusolverDnSetMathMode(handle, CUSOLVER_FP64_EMULATED_FIXEDPOINT_MATH);
+cusolverDnSetEmulationStrategy(handle, CUDA_EMULATION_STRATEGY_PERFORMANT);
+</code></pre>
+
+<div class="results-box dense">
+<table>
+<tr><th></th><th>GPU FP64 のとき</th><th>Ozaki on のとき</th></tr>
+<tr><td>LU</td><td>行列積 89%</td><td>Ozaki-II 29〜42%</td></tr>
+<tr><td>QR</td><td>行列積 96%</td><td>Ozaki-II 68% (eager)</td></tr>
+<tr><td>固有値</td><td>行列積 47%</td><td>残り (三重対角化など) は速くならない</td></tr>
+<tr><td>Cholesky</td><td>SYRK 81%</td><td>SYRK は FP64 のまま (78〜80%)</td></tr>
+</table>
+</div>
+
+<div class="simple-box dense">
+
+* CuPy には API がないので、CuPy のハンドルに ctypes で設定した
+
+</div>
+
+Note:
+results-cusolver/nsys/cusolver_n8192 (2026-11-22)。% は 1 回の呼び出しの GPU カーネル時間に占める割合。Ozaki-II = oz2_ の付くカーネル + INT8 Tensor Core の行列積。
+QR は performant だと行列積の 75% が FP64 のまま。幅の狭い行列積は performant がエミュレーションしない (cuBLAS 単体で、幅 256 以下は FP64 のままだった)。
+LU は Ozaki on でパネル分解のカーネルも変わる (getrf_pivot → getf5_kernel)。N = 8192 では速くなった分はすべて行列積 (FP64 GEMM 449 ms → performant で Ozaki-II 42 ms + FP64 GEMM 19 ms。パネル分解などは 48 ms → 71 ms に増える) だが、N = 2048 では Ozaki-II は時間の 8% だけで、Ozaki と算法の変更の寄与を分けられない (cusolver_n2048)。
+cuBLAS 単体の SYRK (N = 8192) は Ozaki on で 2.9 倍になり、時間の 19% が Ozaki-II、80% が FP64 の SYRK カーネル。potrf の中の SYRK が速くならない理由は未確認。
 
 ---
 
@@ -822,8 +891,8 @@ ADI は 1 ステップの実測 (中央値)。
 <div class="results-box dense nowrap-table">
 <table>
 <tr><th>項目</th><th>内容</th></tr>
-<tr><td>GPU / ドライバ</td><td>GeForce RTX 5080 16 GB / 590.48.01</td></tr>
-<tr><td>CUDA / cuBLAS</td><td>12.9.1 / 12.9.1.4、13.4.2 / 13.8.0.4</td></tr>
+<tr><td>GPU / ドライバ</td><td>GeForce RTX 5080 16 GB / 590.48.01 (cuSOLVER は 595.99.02)</td></tr>
+<tr><td>CUDA / cuBLAS</td><td>12.9.1 / 12.9.1.4、13.4.2 / 13.8.0.4 (cuSOLVER 12.3.4)</td></tr>
 <tr><td>Python</td><td>CuPy 14.2.0、NumPy 2.2.6 (OpenBLAS 0.3.29)</td></tr>
 <tr><td>CPU 側</td><td>g++ 13.3.0、Eigen 3.4.0、OpenMP</td></tr>
 </table>
