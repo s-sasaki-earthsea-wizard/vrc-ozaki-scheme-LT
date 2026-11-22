@@ -521,16 +521,20 @@
     content: none;
 }
 
+/* The art fills the area above the title band (1280 x 528). A 16:9 picture
+   loses 192 px; object-position on the <img> picks which part shows
+   (the default keeps the top, e.g. "50% -90px" crops 90 px off the top). */
 .reveal .slides section .title-art {
     position: absolute;
     left: 0;
     top: 0;
     width: 1280px;
-    height: 720px;
+    height: 528px;
     max-width: none;
     max-height: none;
     margin: 0;
     object-fit: cover;
+    object-position: 50% 0;
 }
 
 .reveal .title-band {
