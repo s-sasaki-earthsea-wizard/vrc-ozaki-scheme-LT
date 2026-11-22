@@ -2,6 +2,8 @@
 
 Inputs (written by run_cusolver_benchmarks.sh):
     <dir>/<condition>/cusolver.json   src/benchmark_cusolver.py
+    <dir>/<condition>/cusolver-*.json supplementary runs of the same script; they only
+                                      fill (routine, N, mode) entries cusolver.json lacks
     <dir>/<condition>/blas3.json      src/benchmark_blas3.py
     <dir>/nsys/*_nvtx_kern_sum.csv    nsys stats --report nvtx_kern_sum
 
@@ -39,6 +41,46 @@ ACCURACY_COLUMNS = {
 
 def load_json(path: Path) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def run_key(r: dict) -> tuple[str, int, str]:
+    return (r["routine"], r["n"], r["mode"])
+
+
+def load_cusolver(cond_dir: Path) -> dict | None:
+    """Load <cond>/cusolver.json and merge the supplementary runs <cond>/cusolver-*.json.
+
+    A supplementary run (e.g. qr / eigh at a size the main run skipped) only fills
+    (routine, n, mode) entries that the main run lacks, so a later full run takes
+    precedence over an old supplement. The supplements that contributed entries are
+    listed under payload["supplements"] as (file name, payload).
+    """
+    main = load_json(cond_dir / "cusolver.json")
+    if main is None:
+        return None
+    have = {run_key(r) for r in main["results"] if r.get("status") == "ok"}
+    main["supplements"] = []
+    for path in sorted(cond_dir.glob("cusolver-*.json")):
+        extra = load_json(path)
+        new = [r for r in extra["results"] if r.get("status") == "ok" and run_key(r) not in have]
+        if new:
+            main["results"].extend(new)
+            have.update(run_key(r) for r in new)
+            main["supplements"].append((path.name, extra))
+    return main
+
+
+def supplement_note(cond: str, payload: dict) -> list[str]:
+    """One line per supplementary run merged into the condition's results."""
+    lines = []
+    for name, extra in payload.get("supplements", []):
+        cfg = extra["config"]
+        lines.append(
+            f"`{', '.join(cfg['routines'])}` at N = {', '.join(map(str, cfg['sizes']))} come from a separate run, "
+            f"`{cond}/{name}` ({extra['env']['timestamp'][:10]}, phi = {cfg['phi']}, seed {cfg['seed']}, "
+            f"{cfg['repeats_large']} calls for qr / eigh)."
+        )
+    return lines
 
 
 def cusolver_lookup(payload: dict) -> dict[tuple[str, int, str], dict]:
@@ -213,7 +255,7 @@ def main() -> None:
     args = p.parse_args()
     d = args.results_dir
 
-    cusolver = {c: v for c in BLAS3_CONDITIONS if (v := load_json(d / c / "cusolver.json"))}
+    cusolver = {c: v for c in BLAS3_CONDITIONS if (v := load_cusolver(d / c))}
     blas3 = {c: v for c in BLAS3_CONDITIONS if (v := load_json(d / c / "blas3.json"))}
     if "cuda13-native" not in cusolver:
         raise SystemExit(f"missing {d / 'cuda13-native' / 'cusolver.json'}")
@@ -227,7 +269,13 @@ def main() -> None:
         "",
         "## Environment",
         "",
-        env_section({**cusolver, **{c: v for c, v in blas3.items() if c not in cusolver}}),
+        env_section(
+            {
+                **cusolver,
+                **{f"{c} ({name})": extra for c, p in cusolver.items() for name, extra in p["supplements"]},
+                **{c: v for c, v in blas3.items() if c not in cusolver},
+            }
+        ),
         "",
         "## cuSOLVER: time per call [s] (median), condition cuda13-native",
         "",
@@ -237,6 +285,7 @@ def main() -> None:
         f"Inputs: A as in the DGEMM benchmark (phi = {cfg['phi']}), S = A Aᵀ + N I, H = (A + Aᵀ) / 2, seed {cfg['seed']}.",
         f"Medians of {cfg['repeats']} calls ({cfg['repeats_large']} for qr / eigh) after {cfg['warmup']} warm-up call.",
         "`gemm` runs on CuPy's cuBLAS handle and is the control: the cuSOLVER math mode must not change it.",
+        *supplement_note("cuda13-native", native),
         "",
         timing_section(native),
         "",

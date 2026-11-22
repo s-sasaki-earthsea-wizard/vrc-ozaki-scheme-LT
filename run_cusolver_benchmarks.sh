@@ -12,7 +12,13 @@
 #
 # Environment variables:
 #   RESULTS_DIR   output directory (default: results-cusolver, or results-quick/cusolver with QUICK=1)
-#   SIZES         cuSOLVER sizes (default: "2048 4096 8192 12000"; qr / eigh stop at 8192)
+#   SIZES         cuSOLVER sizes (default: "2048 4096 8192 12000")
+#   QR_EIGH_MAX_N skip qr / eigh above this size (default: 12000). The 2026-11-22 run used
+#                 8192; qr / eigh at 12000 were measured afterwards in a separate run:
+#                   run_in cuda13-native python src/benchmark_cusolver.py --sizes 12000 \
+#                     --routines qr eigh --qr-eigh-max-n 12000 \
+#                     --output results-cusolver/cuda13-native/cusolver-qr-eigh-n12000.json
+#                 src/report_cusolver.py merges such cusolver-*.json files.
 #   BLAS3_N       size of the level-3 operations (default: 8192)
 #   PROFILE_SIZES cuSOLVER sizes for the nsys kernel check (default: "2048 8192", empty = skip)
 #   QUICK=1       smoke test with small sizes
@@ -24,16 +30,17 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source scripts/conditions.sh
 
 SIZES="${SIZES:-2048 4096 8192 12000}"
+QR_EIGH_MAX_N="${QR_EIGH_MAX_N:-12000}"
 BLAS3_N="${BLAS3_N:-8192}"
 PROFILE_SIZES="${PROFILE_SIZES-2048 8192}"
-CUSOLVER_ARGS=""
+CUSOLVER_ARGS="--qr-eigh-max-n ${QR_EIGH_MAX_N}"
 BLAS3_ARGS=""
 if [[ "${QUICK:-0}" == "1" ]]; then
     RESULTS_DIR="${RESULTS_DIR:-results-quick/cusolver}"
     SIZES="512 1024"
     BLAS3_N=1024
     PROFILE_SIZES=1024
-    CUSOLVER_ARGS="--repeats 2 --repeats-large 1"
+    CUSOLVER_ARGS="${CUSOLVER_ARGS} --repeats 2 --repeats-large 1"
     BLAS3_ARGS="--repeats 2 --ranks 128 256 512"
 fi
 RESULTS_DIR="${RESULTS_DIR:-results-cusolver}"
