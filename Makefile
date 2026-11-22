@@ -68,9 +68,8 @@ analyze: ## Regenerate figures and report.md from results/ and results-phi/
 	docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results
 	@if [ -d results-phi ]; then docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results-phi; fi
 
-slides: ## Serve slides-jp/ at http://localhost:8000 (SLIDES_PORT / SLIDES_BIND to change)
-	@echo "Serving slides-jp/ at http://$(SLIDES_BIND):$(SLIDES_PORT)/ (Ctrl-C to stop)"
-	cd slides-jp && python3 -m http.server $(SLIDES_PORT) --bind $(SLIDES_BIND)
+slides: ## Serve slides-jp/ at http://localhost:8000 with browser caching off (SLIDES_PORT / SLIDES_BIND to change)
+	@python3 scripts/serve-slides.py --directory slides-jp --port $(SLIDES_PORT) --bind $(SLIDES_BIND)
 
 fonts: ## Subset the vendored slide fonts to the characters used in slides-jp/index.html
 	scripts/subset-fonts.sh
