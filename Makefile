@@ -7,7 +7,7 @@ export HOST_GID := $(shell id -g)
 SLIDES_PORT ?= 8000
 SLIDES_BIND ?= 127.0.0.1
 
-.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench analyze slides fonts clean-cache
+.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench cusolver-quick cusolver-bench analyze slides fonts clean-cache
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -51,6 +51,12 @@ fortran-quick: ## Smoke test of the Fortran drop-in (OpenBLAS vs NVBLAS native/e
 
 fortran-bench: ## Fortran drop-in: same binary on OpenBLAS / NVBLAS (LD_PRELOAD) native / emu (-> results-fortran/)
 	./run_fortran_benchmarks.sh
+
+cusolver-quick: ## Smoke test of the cuSOLVER math-mode / cuBLAS level-3 experiment (-> results-quick/cusolver/)
+	QUICK=1 ./run_cusolver_benchmarks.sh
+
+cusolver-bench: ## cuSOLVER LU / Cholesky / QR / eigh with FP64 emulation, cuBLAS level-3, nsys (-> results-cusolver/)
+	./run_cusolver_benchmarks.sh
 
 analyze: ## Regenerate figures and report.md from results/ and results-phi/
 	docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results
