@@ -7,7 +7,7 @@ export HOST_GID := $(shell id -g)
 SLIDES_PORT ?= 8000
 SLIDES_BIND ?= 127.0.0.1
 
-.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench cusolver-quick cusolver-bench adi-quick adi-bench analyze slides fonts clean-cache
+.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench cusolver-quick cusolver-bench adi-quick adi-bench analyze slides pdf fonts clean-cache
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -70,6 +70,9 @@ analyze: ## Regenerate figures and report.md from results/ and results-phi/
 
 slides: ## Serve slides-jp/ at http://localhost:8000 with browser caching off (SLIDES_PORT / SLIDES_BIND to change)
 	@python3 scripts/serve-slides.py --directory slides-jp --port $(SLIDES_PORT) --bind $(SLIDES_BIND)
+
+pdf: ## Export the slides to slides-jp/slides-jp.pdf with decktape (DECKTAPE_ARGS to change its options)
+	$(MAKE) -C slides-jp slides-jp
 
 fonts: ## Subset the vendored slide fonts to the characters used in slides-jp/index.html
 	scripts/subset-fonts.sh
