@@ -31,3 +31,6 @@ results*/**/*.log
 
 # C++ build output
 build/
+
+# Font sources fetched by scripts/subset-fonts.sh
+.cache/

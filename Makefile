@@ -3,7 +3,11 @@
 export HOST_UID := $(shell id -u)
 export HOST_GID := $(shell id -g)
 
-.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench analyze clean-cache
+# Local preview of the slides (make slides)
+SLIDES_PORT ?= 8000
+SLIDES_BIND ?= 127.0.0.1
+
+.PHONY: help build env-check quick bench dgemm pde phi-sweep profile cpu-quick cpu-bench cpu-phi-sweep fortran-quick fortran-bench cusolver-quick cusolver-bench adi-quick adi-bench analyze slides pdf fonts clean-cache
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -48,9 +52,30 @@ fortran-quick: ## Smoke test of the Fortran drop-in (OpenBLAS vs NVBLAS native/e
 fortran-bench: ## Fortran drop-in: same binary on OpenBLAS / NVBLAS (LD_PRELOAD) native / emu (-> results-fortran/)
 	./run_fortran_benchmarks.sh
 
+cusolver-quick: ## Smoke test of the cuSOLVER math-mode / cuBLAS level-3 experiment (-> results-quick/cusolver/)
+	QUICK=1 ./run_cusolver_benchmarks.sh
+
+cusolver-bench: ## cuSOLVER LU / Cholesky / QR / eigh with FP64 emulation, cuBLAS level-3, nsys (-> results-cusolver/)
+	./run_cusolver_benchmarks.sh
+
+adi-quick: ## Smoke test of the ADI solver comparison (-> results-quick/adi/)
+	QUICK=1 ./run_adi_benchmarks.sh
+
+adi-bench: ## ADI step with dense propagator / dense LU / tridiagonal solvers, emulation off and on (-> results-adi/)
+	./run_adi_benchmarks.sh
+
 analyze: ## Regenerate figures and report.md from results/ and results-phi/
 	docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results
 	@if [ -d results-phi ]; then docker compose run --rm -T -e BENCH_CONDITION=analysis cuda13 python src/analyze_results.py --results-dir results-phi; fi
+
+slides: ## Serve slides-jp/ at http://localhost:8000 with browser caching off (SLIDES_PORT / SLIDES_BIND to change)
+	@python3 scripts/serve-slides.py --directory slides-jp --port $(SLIDES_PORT) --bind $(SLIDES_BIND)
+
+pdf: ## Export the slides to slides-jp/slides-jp.pdf with decktape (DECKTAPE_ARGS to change its options)
+	$(MAKE) -C slides-jp slides-jp
+
+fonts: ## Subset the vendored slide fonts to the characters used in slides-jp/index.html
+	scripts/subset-fonts.sh
 
 clean-cache: ## Remove cached NumPy reference solutions
 	rm -rf cache

@@ -1,0 +1,27 @@
+NVTX Range,Style,PID,TID,NVTX Inst,Kern Inst,Total Time (ns),Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Kernel Name
+,,94,94,0,2,1682999038,841499519.0,841499519.0,336963320,1346035718,713521935.3,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+,,94,94,0,1,688085082,688085082.0,688085082.0,688085082,688085082,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884syrk_upper_128x128_16x3_nt_align1>(T1::Params)
+,,94,94,0,3,401781242,133927080.7,42560003.0,21472450,337748789,176829403.1,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_tn_align1>(T1::Params)
+,,94,94,0,2,253136782,126568391.0,126568391.0,84539461,168597321,59437882.8,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_tn_align1>(T1::Params)
+,,94,94,0,26,237851935,9148151.3,1519362.0,1517411,84378729,22220532.7,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+,,94,94,0,4,86046698,21511674.5,21512563.0,21504866,21516706,5559.4,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x64_16x4_nn_align1>(T1::Params)
+,,94,94,0,32,70979789,2218118.4,2218068.0,2215875,2220419,1272.0,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)0>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+,,94,94,0,8,5121993,640249.1,248336.5,12608,1547843,730222.0,cupy_copy__float64_float64
+,,94,94,0,1,1893219,1893219.0,1893219.0,1893219,1893219,0.0,cupy_add__float64_float64_float64
+,,94,94,0,1,1360195,1360195.0,1360195.0,1360195,1360195,0.0,cupy_where__bool_float64_float_float64
+,,94,94,0,1,1283362,1283362.0,1283362.0,1283362,1283362,0.0,cupy_multiply__float_float64_float64
+,,94,94,0,1,260449,260449.0,260449.0,260449,260449,0.0,cupy_tri
+,,94,94,0,1,544,544.0,544.0,544,544,0.0,cupy_fill
+:blas3:gemm,PushPop,94,94,1,1,1346025404,1346025404.0,1346025404.0,1346025404,1346025404,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:blas3:gemm_rank1024,PushPop,94,94,1,1,168606697,168606697.0,168606697.0,168606697,168606697,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_tn_align1>(T1::Params)
+:blas3:gemm_rank128,PushPop,94,94,1,1,21472066,21472066.0,21472066.0,21472066,21472066,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_tn_align1>(T1::Params)
+:blas3:gemm_rank2048,PushPop,94,94,1,1,337677847,337677847.0,337677847.0,337677847,337677847,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_tn_align1>(T1::Params)
+:blas3:gemm_rank256,PushPop,94,94,1,1,42561891,42561891.0,42561891.0,42561891,42561891,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_128x64_16x3_tn_align1>(T1::Params)
+:blas3:gemm_rank512,PushPop,94,94,1,1,84537573,84537573.0,84537573.0,84537573,84537573,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_tn_align1>(T1::Params)
+:blas3:syrk,PushPop,94,94,1,1,688147450,688147450.0,688147450.0,688147450,688147450,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884syrk_upper_128x128_16x3_nt_align1>(T1::Params)
+:blas3:syrk,PushPop,94,94,1,1,1483682,1483682.0,1483682.0,1483682,1483682,0.0,cupy_copy__float64_float64
+:blas3:trsm,PushPop,94,94,1,1,336958258,336958258.0,336958258.0,336958258,336958258,0.0,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params)
+:blas3:trsm,PushPop,94,94,1,26,237880535,9149251.3,1518994.0,1517859,84379908,22225682.5,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x32_16x4_nn_align1>(T1::Params)
+:blas3:trsm,PushPop,94,94,1,4,86048776,21512194.0,21511426.0,21508034,21517890,4189.4,void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_32x64_16x4_nn_align1>(T1::Params)
+:blas3:trsm,PushPop,94,94,1,32,70979342,2218104.4,2218612.0,2215427,2221955,1646.2,"void kernel_trsm_l_mul32<double, (int)8, (bool)0, (bool)0, (bool)0, (bool)0>(int, int, const T1 *, const T1 *, int, T1 *, int, T1, int)"
+:blas3:trsm,PushPop,94,94,1,2,3027205,1513602.5,1513602.5,1452802,1574403,85984.9,cupy_copy__float64_float64

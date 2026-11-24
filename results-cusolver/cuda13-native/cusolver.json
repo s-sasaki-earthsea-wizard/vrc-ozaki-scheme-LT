@@ -1,0 +1,1835 @@
+{
+  "benchmark": "cusolver",
+  "condition": "cuda13-native",
+  "env": {
+    "condition": "cuda13-native",
+    "timestamp": "2026-11-22T07:49:38.552170+00:00",
+    "hostname": "3fd042647496",
+    "python": "3.12.3",
+    "numpy": "2.2.6",
+    "numpy_blas": {
+      "name": "scipy-openblas",
+      "found": true,
+      "version": "0.3.29",
+      "detection method": "pkgconfig",
+      "include directory": "/opt/_internal/cpython-3.12.7/lib/python3.12/site-packages/scipy_openblas64/include",
+      "lib directory": "/opt/_internal/cpython-3.12.7/lib/python3.12/site-packages/scipy_openblas64/lib",
+      "openblas configuration": "OpenBLAS 0.3.29  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+      "pc file directory": "/project/.openblas"
+    },
+    "cupy": "14.2.0",
+    "cuda_runtime": "13.2",
+    "cuda_toolkit": "13.4.2",
+    "cuda_driver_api": "13.2",
+    "cublas_version": 130800,
+    "libcublas_loaded": [
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcublas.so.13.8.0.4",
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcublasLt.so.13.8.0.4"
+    ],
+    "libcuda_loaded": [
+      "/usr/lib/x86_64-linux-gnu/libcuda.so.595.99.02"
+    ],
+    "gpu_name": "NVIDIA GeForce RTX 5080",
+    "compute_capability": "12.0",
+    "gpu_memory_gib": 15.47,
+    "nvidia_smi": {
+      "name": "NVIDIA GeForce RTX 5080",
+      "driver_version": "595.99.02",
+      "clocks.sm": "2775 MHz",
+      "clocks.max.sm": "3090 MHz",
+      "clocks.mem": "14801 MHz",
+      "temperature.gpu": "44",
+      "power.draw": "49.92 W",
+      "power.limit": "360.00 W",
+      "persistence_mode": "Disabled"
+    },
+    "emulation_env": {
+      "CUBLAS_EMULATE_DOUBLE_PRECISION": "0",
+      "CUBLAS_EMULATION_STRATEGY": null,
+      "CUBLAS_FIXEDPOINT_EMULATION_MANTISSA_BIT_COUNT": null,
+      "CUBLAS_EMULATION_SPECIAL_VALUES_SUPPORT_MASK": null
+    },
+    "cpu_count": 16,
+    "cusolver_version": 12304,
+    "libcusolver_loaded": [
+      "/usr/local/cuda-13.4/targets/x86_64-linux/lib/libcusolver.so.12.3.4.7"
+    ]
+  },
+  "config": {
+    "sizes": [
+      2048,
+      4096,
+      8192,
+      12000
+    ],
+    "routines": [
+      "gemm",
+      "lu_solve",
+      "cholesky",
+      "qr",
+      "eigh"
+    ],
+    "modes": [
+      "default",
+      "emu-performant",
+      "emu-eager",
+      "default-again"
+    ],
+    "qr_eigh_max_n": 8192,
+    "phi": 0.5,
+    "warmup": 1,
+    "repeats": 5,
+    "repeats_large": 3,
+    "seed": 20261006,
+    "profile": null,
+    "output": "results-cusolver/cuda13-native/cusolver.json"
+  },
+  "modes": {
+    "default": {
+      "math_mode": 1,
+      "emulation_strategy": 0
+    },
+    "emu-performant": {
+      "math_mode": 4,
+      "emulation_strategy": 1
+    },
+    "emu-eager": {
+      "math_mode": 4,
+      "emulation_strategy": 2
+    },
+    "default-again": {
+      "math_mode": 1,
+      "emulation_strategy": 0
+    }
+  },
+  "results": [
+    {
+      "n": 2048,
+      "routine": "gemm",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.022404863357543946,
+        0.022378656387329103,
+        0.02236956787109375,
+        0.022370208740234376,
+        0.022369375228881837
+      ],
+      "median_s": 0.022370208740234376,
+      "min_s": 0.022369375228881837,
+      "max_s": 0.022404863357543946,
+      "std_s": 1.5221978788550307e-05,
+      "accuracy": {}
+    },
+    {
+      "n": 2048,
+      "routine": "gemm",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.02239731216430664,
+        0.022379776000976563,
+        0.022370559692382812,
+        0.022368864059448244,
+        0.022368576049804686
+      ],
+      "median_s": 0.022370559692382812,
+      "min_s": 0.022368576049804686,
+      "max_s": 0.02239731216430664,
+      "std_s": 1.2236448426370665e-05,
+      "accuracy": {}
+    },
+    {
+      "n": 2048,
+      "routine": "gemm",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.02238703918457031,
+        0.02237654495239258,
+        0.022369823455810546,
+        0.022372095108032227,
+        0.02237264060974121
+      ],
+      "median_s": 0.02237264060974121,
+      "min_s": 0.022369823455810546,
+      "max_s": 0.02238703918457031,
+      "std_s": 6.821922241157686e-06,
+      "accuracy": {}
+    },
+    {
+      "n": 2048,
+      "routine": "gemm",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.022382303237915038,
+        0.022371200561523436,
+        0.02237001609802246,
+        0.022372352600097657,
+        0.02236649513244629
+      ],
+      "median_s": 0.022371200561523436,
+      "min_s": 0.02236649513244629,
+      "max_s": 0.022382303237915038,
+      "std_s": 5.9168919145298e-06,
+      "accuracy": {}
+    },
+    {
+      "n": 2048,
+      "routine": "lu_solve",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.01793097686767578,
+        0.01782326316833496,
+        0.01758723258972168,
+        0.017804384231567383,
+        0.01780031967163086
+      ],
+      "median_s": 0.017804384231567383,
+      "min_s": 0.01758723258972168,
+      "max_s": 0.01793097686767578,
+      "std_s": 0.0001249059808540812,
+      "accuracy": {
+        "backward_err": 1.2931652977670968e-15,
+        "backward_err_in_u": 11.647797506304707
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "lu_solve",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.012511487960815429,
+        0.012405183792114258,
+        0.012364768028259277,
+        0.012372384071350098,
+        0.012382368087768554
+      ],
+      "median_s": 0.012382368087768554,
+      "min_s": 0.012364768028259277,
+      "max_s": 0.012511487960815429,
+      "std_s": 6.022723942638718e-05,
+      "accuracy": {
+        "backward_err": 9.907484238473378e-16,
+        "backward_err_in_u": 8.923868464913554
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "lu_solve",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.014676095962524414,
+        0.01467404842376709,
+        0.014687456130981446,
+        0.014696479797363281,
+        0.014701663970947266
+      ],
+      "median_s": 0.014687456130981446,
+      "min_s": 0.01467404842376709,
+      "max_s": 0.014701663970947266,
+      "std_s": 1.216179700376622e-05,
+      "accuracy": {
+        "backward_err": 1.270051336659547e-15,
+        "backward_err_in_u": 11.439605453042672
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "lu_solve",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.01759539222717285,
+        0.01780499267578125,
+        0.017800575256347657,
+        0.0175817928314209,
+        0.017801408767700196
+      ],
+      "median_s": 0.017800575256347657,
+      "min_s": 0.0175817928314209,
+      "max_s": 0.01780499267578125,
+      "std_s": 0.00011717685655319768,
+      "accuracy": {
+        "backward_err": 1.2931652977670968e-15,
+        "backward_err_in_u": 11.647797506304707
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "cholesky",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.009498527526855469,
+        0.009369952201843262,
+        0.009351840019226074,
+        0.00934556770324707,
+        0.009344223976135255
+      ],
+      "median_s": 0.009351840019226074,
+      "min_s": 0.009344223976135255,
+      "max_s": 0.009498527526855469,
+      "std_s": 6.593135850692638e-05,
+      "accuracy": {
+        "recon_rel_err": 3.079163906956034e-16,
+        "recon_rel_err_in_u": 2.773464284795975
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "cholesky",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.008486111640930176,
+        0.00846617603302002,
+        0.008457280158996583,
+        0.008453887939453125,
+        0.008450336456298828
+      ],
+      "median_s": 0.008457280158996583,
+      "min_s": 0.008450336456298828,
+      "max_s": 0.008486111640930176,
+      "std_s": 1.4318300855131273e-05,
+      "accuracy": {
+        "recon_rel_err": 3.079163906956034e-16,
+        "recon_rel_err_in_u": 2.773464284795975
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "cholesky",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.011049344062805175,
+        0.011039711952209473,
+        0.011044704437255859,
+        0.011038111686706544,
+        0.011043423652648926
+      ],
+      "median_s": 0.011043423652648926,
+      "min_s": 0.011038111686706544,
+      "max_s": 0.011049344062805175,
+      "std_s": 4.416477312085856e-06,
+      "accuracy": {
+        "recon_rel_err": 3.0821555548443634e-16,
+        "recon_rel_err_in_u": 2.776158921658996
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "cholesky",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.009361344337463379,
+        0.00934556770324707,
+        0.009344223976135255,
+        0.009341823577880859,
+        0.009343999862670899
+      ],
+      "median_s": 0.009344223976135255,
+      "min_s": 0.009341823577880859,
+      "max_s": 0.009361344337463379,
+      "std_s": 7.914323645136974e-06,
+      "accuracy": {
+        "recon_rel_err": 3.079163906956034e-16,
+        "recon_rel_err_in_u": 2.773464284795975
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "qr",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.06202291107177734,
+        0.061953662872314456,
+        0.06191535949707031
+      ],
+      "median_s": 0.061953662872314456,
+      "min_s": 0.06191535949707031,
+      "max_s": 0.06202291107177734,
+      "std_s": 5.451269409643185e-05,
+      "accuracy": {
+        "recon_rel_err": 2.6060715113431827e-15,
+        "orth_err": 2.7850157152760875e-15,
+        "recon_rel_err_in_u": 23.473405374772046
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "qr",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.055736801147460935,
+        0.055481632232666014,
+        0.05552505493164062
+      ],
+      "median_s": 0.05552505493164062,
+      "min_s": 0.055481632232666014,
+      "max_s": 0.055736801147460935,
+      "std_s": 0.00013652421383407836,
+      "accuracy": {
+        "recon_rel_err": 1.81600485268648e-15,
+        "orth_err": 2.7795266927212205e-15,
+        "recon_rel_err_in_u": 16.357117555723686
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "qr",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.08163225555419922,
+        0.08144499206542968,
+        0.08167648315429688
+      ],
+      "median_s": 0.08163225555419922,
+      "min_s": 0.08144499206542968,
+      "max_s": 0.08167648315429688,
+      "std_s": 0.00012289007219289734,
+      "accuracy": {
+        "recon_rel_err": 1.1599322409706224e-15,
+        "orth_err": 1.5822720944164867e-15,
+        "recon_rel_err_in_u": 10.44774081642064
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "qr",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.06192051315307617,
+        0.061907936096191406,
+        0.06194745635986328
+      ],
+      "median_s": 0.06192051315307617,
+      "min_s": 0.061907936096191406,
+      "max_s": 0.06194745635986328,
+      "std_s": 2.0190633111050664e-05,
+      "accuracy": {
+        "recon_rel_err": 2.6060715113431827e-15,
+        "orth_err": 2.7850157152760875e-15,
+        "recon_rel_err_in_u": 23.473405374772046
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "eigh",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.11671875,
+        0.11657788848876953,
+        0.11658985900878906
+      ],
+      "median_s": 0.11658985900878906,
+      "min_s": 0.11657788848876953,
+      "max_s": 0.11671875,
+      "std_s": 7.810051889606459e-05,
+      "accuracy": {
+        "recon_rel_err": 4.61190174055278e-15,
+        "orth_err": 5.639827193539012e-15,
+        "recon_rel_err_in_u": 41.54031792044568
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "eigh",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.11045241546630859,
+        0.11049244689941407,
+        0.11035151672363282
+      ],
+      "median_s": 0.11045241546630859,
+      "min_s": 0.11035151672363282,
+      "max_s": 0.11049244689941407,
+      "std_s": 7.262275395925982e-05,
+      "accuracy": {
+        "recon_rel_err": 4.550023685301152e-15,
+        "orth_err": 5.56900360163641e-15,
+        "recon_rel_err_in_u": 40.9829699472984
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "eigh",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.10483708953857422,
+        0.1049098892211914,
+        0.10491913604736328
+      ],
+      "median_s": 0.1049098892211914,
+      "min_s": 0.10483708953857422,
+      "max_s": 0.10491913604736328,
+      "std_s": 4.4938712316309e-05,
+      "accuracy": {
+        "recon_rel_err": 3.11619998901517e-15,
+        "orth_err": 4.316543004738444e-15,
+        "recon_rel_err_in_u": 28.068234218681326
+      }
+    },
+    {
+      "n": 2048,
+      "routine": "eigh",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.11652220916748048,
+        0.11648595428466797,
+        0.11654354858398437
+      ],
+      "median_s": 0.11652220916748048,
+      "min_s": 0.11648595428466797,
+      "max_s": 0.11654354858398437,
+      "std_s": 2.911726446120371e-05,
+      "accuracy": {
+        "recon_rel_err": 4.61190174055278e-15,
+        "orth_err": 5.639827193539012e-15,
+        "recon_rel_err_in_u": 41.54031792044568
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "gemm",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.16898060607910156,
+        0.1688802490234375,
+        0.1688723907470703,
+        0.1688885803222656,
+        0.1689000244140625
+      ],
+      "median_s": 0.1688885803222656,
+      "min_s": 0.1688723907470703,
+      "max_s": 0.16898060607910156,
+      "std_s": 4.3831016201648836e-05,
+      "accuracy": {}
+    },
+    {
+      "n": 4096,
+      "routine": "gemm",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.1689397430419922,
+        0.16892442321777343,
+        0.16892681884765626,
+        0.1689319610595703,
+        0.16891043090820312
+      ],
+      "median_s": 0.16892681884765626,
+      "min_s": 0.16891043090820312,
+      "max_s": 0.1689397430419922,
+      "std_s": 1.0812930685974006e-05,
+      "accuracy": {}
+    },
+    {
+      "n": 4096,
+      "routine": "gemm",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.16891810607910157,
+        0.16891017150878906,
+        0.16890524291992187,
+        0.1689005126953125,
+        0.16889468383789064
+      ],
+      "median_s": 0.16890524291992187,
+      "min_s": 0.16889468383789064,
+      "max_s": 0.16891810607910157,
+      "std_s": 8.977313739409285e-06,
+      "accuracy": {}
+    },
+    {
+      "n": 4096,
+      "routine": "gemm",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.16892735290527344,
+        0.16891827392578124,
+        0.16888163757324218,
+        0.16888835144042968,
+        0.1689003448486328
+      ],
+      "median_s": 0.1689003448486328,
+      "min_s": 0.16888163757324218,
+      "max_s": 0.16892735290527344,
+      "std_s": 1.9391722595820142e-05,
+      "accuracy": {}
+    },
+    {
+      "n": 4096,
+      "routine": "lu_solve",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.07963670349121094,
+        0.07962601470947266,
+        0.0796115493774414,
+        0.0794351043701172,
+        0.07981251525878906
+      ],
+      "median_s": 0.07962601470947266,
+      "min_s": 0.0794351043701172,
+      "max_s": 0.07981251525878906,
+      "std_s": 0.00013373416281971026,
+      "accuracy": {
+        "backward_err": 1.8822844487722598e-15,
+        "backward_err_in_u": 16.954111084192057
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "lu_solve",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.039704864501953124,
+        0.03961775970458985,
+        0.039615585327148435,
+        0.03958313751220703,
+        0.03959804916381836
+      ],
+      "median_s": 0.039615585327148435,
+      "min_s": 0.03958313751220703,
+      "max_s": 0.039704864501953124,
+      "std_s": 4.7412897972881335e-05,
+      "accuracy": {
+        "backward_err": 1.9032238954481285e-15,
+        "backward_err_in_u": 17.14271685268563
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "lu_solve",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.045822654724121094,
+        0.04579993438720703,
+        0.04585577774047851,
+        0.04579724884033203,
+        0.045852001190185544
+      ],
+      "median_s": 0.045822654724121094,
+      "min_s": 0.04579724884033203,
+      "max_s": 0.04585577774047851,
+      "std_s": 2.774381053645626e-05,
+      "accuracy": {
+        "backward_err": 1.7903039341962695e-15,
+        "backward_err_in_u": 16.125624261852504
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "lu_solve",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.0796428451538086,
+        0.07957968139648437,
+        0.08014508819580078,
+        0.08016249847412109,
+        0.07965955352783204
+      ],
+      "median_s": 0.07965955352783204,
+      "min_s": 0.07957968139648437,
+      "max_s": 0.08016249847412109,
+      "std_s": 0.000289939414291662,
+      "accuracy": {
+        "backward_err": 1.8822844487722598e-15,
+        "backward_err_in_u": 16.954111084192057
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "cholesky",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.0440733757019043,
+        0.0441835823059082,
+        0.04411843109130859,
+        0.04405648040771484,
+        0.04411545562744141
+      ],
+      "median_s": 0.04411545562744141,
+      "min_s": 0.04405648040771484,
+      "max_s": 0.0441835823059082,
+      "std_s": 4.9293655530521396e-05,
+      "accuracy": {
+        "recon_rel_err": 3.1292684801561464e-16,
+        "recon_rel_err_in_u": 2.818594472234692
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "cholesky",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.040322784423828126,
+        0.04030905532836914,
+        0.04041596984863281,
+        0.040411361694335936,
+        0.0403076171875
+      ],
+      "median_s": 0.040322784423828126,
+      "min_s": 0.0403076171875,
+      "max_s": 0.04041596984863281,
+      "std_s": 5.53948651661503e-05,
+      "accuracy": {
+        "recon_rel_err": 3.1292684801561464e-16,
+        "recon_rel_err_in_u": 2.818594472234692
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "cholesky",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.04672857666015625,
+        0.04675753784179688,
+        0.046741439819335935,
+        0.04673225784301758,
+        0.04674819183349609
+      ],
+      "median_s": 0.046741439819335935,
+      "min_s": 0.04672857666015625,
+      "max_s": 0.04675753784179688,
+      "std_s": 1.1772595321350793e-05,
+      "accuracy": {
+        "recon_rel_err": 3.1301301309254067e-16,
+        "recon_rel_err_in_u": 2.8193705782513647
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "cholesky",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.044079071044921876,
+        0.04405171203613281,
+        0.04404937744140625,
+        0.04404937744140625,
+        0.044044288635253906
+      ],
+      "median_s": 0.04404937744140625,
+      "min_s": 0.044044288635253906,
+      "max_s": 0.044079071044921876,
+      "std_s": 1.38555963522191e-05,
+      "accuracy": {
+        "recon_rel_err": 3.1292684801561464e-16,
+        "recon_rel_err_in_u": 2.818594472234692
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "qr",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.3154005126953125,
+        0.31528457641601565,
+        0.3152719421386719
+      ],
+      "median_s": 0.31528457641601565,
+      "min_s": 0.3152719421386719,
+      "max_s": 0.3154005126953125,
+      "std_s": 7.086516993097272e-05,
+      "accuracy": {
+        "recon_rel_err": 2.799254532239861e-15,
+        "orth_err": 3.4959217185336546e-15,
+        "recon_rel_err_in_u": 25.21344333662122
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "qr",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.23376156616210939,
+        0.2340015411376953,
+        0.233822021484375
+      ],
+      "median_s": 0.233822021484375,
+      "min_s": 0.23376156616210939,
+      "max_s": 0.2340015411376953,
+      "std_s": 0.00012481328777147176,
+      "accuracy": {
+        "recon_rel_err": 2.1176841124262125e-15,
+        "orth_err": 3.4969247683995384e-15,
+        "recon_rel_err_in_u": 19.07440275922222
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "qr",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.25121302795410155,
+        0.25140982055664063,
+        0.2513658294677734
+      ],
+      "median_s": 0.2513658294677734,
+      "min_s": 0.25121302795410155,
+      "max_s": 0.25140982055664063,
+      "std_s": 0.00010328830757822011,
+      "accuracy": {
+        "recon_rel_err": 1.4466228827370179e-15,
+        "orth_err": 2.1298439958289776e-15,
+        "recon_rel_err_in_u": 13.030020551280133
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "qr",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.3153461608886719,
+        0.31535064697265625,
+        0.3152357177734375
+      ],
+      "median_s": 0.3153461608886719,
+      "min_s": 0.3152357177734375,
+      "max_s": 0.31535064697265625,
+      "std_s": 6.509803822601277e-05,
+      "accuracy": {
+        "recon_rel_err": 2.799254532239861e-15,
+        "orth_err": 3.4959217185336546e-15,
+        "recon_rel_err_in_u": 25.21344333662122
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "eigh",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.639644287109375,
+        0.6377051391601563,
+        0.6374100341796874
+      ],
+      "median_s": 0.6377051391601563,
+      "min_s": 0.6374100341796874,
+      "max_s": 0.639644287109375,
+      "std_s": 0.001213759165586714,
+      "accuracy": {
+        "recon_rel_err": 4.6290359953872975e-15,
+        "orth_err": 6.421871890267123e-15,
+        "recon_rel_err_in_u": 41.69464956782169
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "eigh",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.5724904174804688,
+        0.5745140380859375,
+        0.5739342651367187
+      ],
+      "median_s": 0.5739342651367187,
+      "min_s": 0.5724904174804688,
+      "max_s": 0.5745140380859375,
+      "std_s": 0.0010421030884691514,
+      "accuracy": {
+        "recon_rel_err": 4.927996501994022e-15,
+        "orth_err": 6.473881590419455e-15,
+        "recon_rel_err_in_u": 44.38744642012677
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "eigh",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.5114762268066406,
+        0.5126754150390626,
+        0.5125369873046876
+      ],
+      "median_s": 0.5125369873046876,
+      "min_s": 0.5114762268066406,
+      "max_s": 0.5126754150390626,
+      "std_s": 0.0006560522703565889,
+      "accuracy": {
+        "recon_rel_err": 4.7744420510321684e-15,
+        "orth_err": 6.31381266902072e-15,
+        "recon_rel_err_in_u": 43.004350883861
+      }
+    },
+    {
+      "n": 4096,
+      "routine": "eigh",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.6419803466796875,
+        0.6426607666015625,
+        0.6398118286132812
+      ],
+      "median_s": 0.6419803466796875,
+      "min_s": 0.6398118286132812,
+      "max_s": 0.6426607666015625,
+      "std_s": 0.0014878334100007435,
+      "accuracy": {
+        "recon_rel_err": 4.6290359953872975e-15,
+        "orth_err": 6.421871890267123e-15,
+        "recon_rel_err_in_u": 41.69464956782169
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "gemm",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        1.34800830078125,
+        1.3479796142578124,
+        1.347954833984375,
+        1.3477691650390624,
+        1.348021728515625
+      ],
+      "median_s": 1.3479796142578124,
+      "min_s": 1.3477691650390624,
+      "max_s": 1.348021728515625,
+      "std_s": 0.0001025818000013586,
+      "accuracy": {}
+    },
+    {
+      "n": 8192,
+      "routine": "gemm",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        1.347893798828125,
+        1.3478150634765624,
+        1.3478154296875,
+        1.3477171630859375,
+        1.347382080078125
+      ],
+      "median_s": 1.3478150634765624,
+      "min_s": 1.347382080078125,
+      "max_s": 1.347893798828125,
+      "std_s": 0.00020151740833951583,
+      "accuracy": {}
+    },
+    {
+      "n": 8192,
+      "routine": "gemm",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        1.3473631591796875,
+        1.3475321044921875,
+        1.347521484375,
+        1.3475445556640624,
+        1.347292724609375
+      ],
+      "median_s": 1.347521484375,
+      "min_s": 1.347292724609375,
+      "max_s": 1.3475445556640624,
+      "std_s": 0.00011517982484863939,
+      "accuracy": {}
+    },
+    {
+      "n": 8192,
+      "routine": "gemm",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        1.347220947265625,
+        1.347201416015625,
+        1.34723681640625,
+        1.3474671630859374,
+        1.3474085693359374
+      ],
+      "median_s": 1.34723681640625,
+      "min_s": 1.347201416015625,
+      "max_s": 1.3474671630859374,
+      "std_s": 0.00012190911598032098,
+      "accuracy": {}
+    },
+    {
+      "n": 8192,
+      "routine": "lu_solve",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.5074645385742188,
+        0.5083443908691406,
+        0.5074651489257812,
+        0.5072676391601563,
+        0.5074260559082031
+      ],
+      "median_s": 0.5074645385742188,
+      "min_s": 0.5072676391601563,
+      "max_s": 0.5083443908691406,
+      "std_s": 0.0004275409164100956,
+      "accuracy": {
+        "backward_err": 3.8791843585189555e-15,
+        "backward_err_in_u": 34.94058646305485
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "lu_solve",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.14576336669921874,
+        0.1454910430908203,
+        0.14551405334472656,
+        0.14536166381835938,
+        0.14558767700195313
+      ],
+      "median_s": 0.14551405334472656,
+      "min_s": 0.14536166381835938,
+      "max_s": 0.14576336669921874,
+      "std_s": 0.0001474586249005916,
+      "accuracy": {
+        "backward_err": 4.238943497759936e-15,
+        "backward_err_in_u": 38.18100871391247
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "lu_solve",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.14883340454101562,
+        0.14886146545410156,
+        0.1487617645263672,
+        0.1489430694580078,
+        0.14909718322753907
+      ],
+      "median_s": 0.14886146545410156,
+      "min_s": 0.1487617645263672,
+      "max_s": 0.14909718322753907,
+      "std_s": 0.00012822166167931787,
+      "accuracy": {
+        "backward_err": 4.648556166035787e-15,
+        "backward_err_in_u": 41.87047163433918
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "lu_solve",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.5087814025878906,
+        0.5103144226074219,
+        0.5086831359863281,
+        0.5086920776367188,
+        0.5088531494140625
+      ],
+      "median_s": 0.5087814025878906,
+      "min_s": 0.5086831359863281,
+      "max_s": 0.5103144226074219,
+      "std_s": 0.0007020071397488926,
+      "accuracy": {
+        "backward_err": 3.8791843585189555e-15,
+        "backward_err_in_u": 34.94058646305485
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "cholesky",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.2714037170410156,
+        0.2713393859863281,
+        0.2712779846191406,
+        0.2713017578125,
+        0.2714002685546875
+      ],
+      "median_s": 0.2713393859863281,
+      "min_s": 0.2712779846191406,
+      "max_s": 0.2714037170410156,
+      "std_s": 5.677600253411731e-05,
+      "accuracy": {
+        "recon_rel_err": 3.282975618380455e-16,
+        "recon_rel_err_in_u": 2.957041554320928
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "cholesky",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.2629749755859375,
+        0.2629652099609375,
+        0.2629747009277344,
+        0.263073974609375,
+        0.2630048828125
+      ],
+      "median_s": 0.2629749755859375,
+      "min_s": 0.2629652099609375,
+      "max_s": 0.263073974609375,
+      "std_s": 4.4623054855351296e-05,
+      "accuracy": {
+        "recon_rel_err": 3.282975618380455e-16,
+        "recon_rel_err_in_u": 2.957041554320928
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "cholesky",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.2702606506347656,
+        0.2702819519042969,
+        0.2702624816894531,
+        0.2702119140625,
+        0.2702239685058594
+      ],
+      "median_s": 0.2702606506347656,
+      "min_s": 0.2702119140625,
+      "max_s": 0.2702819519042969,
+      "std_s": 2.9163377511093022e-05,
+      "accuracy": {
+        "recon_rel_err": 3.2831684426351024e-16,
+        "recon_rel_err_in_u": 2.957215234969204
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "cholesky",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.2712483215332031,
+        0.2712674560546875,
+        0.2712850036621094,
+        0.2714056396484375,
+        0.27128240966796874
+      ],
+      "median_s": 0.27128240966796874,
+      "min_s": 0.2712483215332031,
+      "max_s": 0.2714056396484375,
+      "std_s": 6.204608430577664e-05,
+      "accuracy": {
+        "recon_rel_err": 3.282975618380455e-16,
+        "recon_rel_err_in_u": 2.957041554320928
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "qr",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        2.109109130859375,
+        2.109599609375,
+        2.109140869140625
+      ],
+      "median_s": 2.109140869140625,
+      "min_s": 2.109109130859375,
+      "max_s": 2.109599609375,
+      "std_s": 0.00027447498229073966,
+      "accuracy": {
+        "recon_rel_err": 3.60664656496901e-15,
+        "orth_err": 4.239544997223498e-15,
+        "recon_rel_err_in_u": 32.485784252103024
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "qr",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        1.3616854248046875,
+        1.36161572265625,
+        1.361392822265625
+      ],
+      "median_s": 1.36161572265625,
+      "min_s": 1.361392822265625,
+      "max_s": 1.3616854248046875,
+      "std_s": 0.00015283935984298637,
+      "accuracy": {
+        "recon_rel_err": 2.547036489175843e-15,
+        "orth_err": 4.2400040139156905e-15,
+        "recon_rel_err_in_u": 22.941665167102766
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "qr",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        1.072437744140625,
+        1.072691162109375,
+        1.0723702392578125
+      ],
+      "median_s": 1.072437744140625,
+      "min_s": 1.0723702392578125,
+      "max_s": 1.072691162109375,
+      "std_s": 0.00016919862723242926,
+      "accuracy": {
+        "recon_rel_err": 1.904812740305559e-15,
+        "orth_err": 2.911513273437654e-15,
+        "recon_rel_err_in_u": 17.15702789490138
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "qr",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        2.1091240234375,
+        2.109055419921875,
+        2.10924267578125
+      ],
+      "median_s": 2.1091240234375,
+      "min_s": 2.109055419921875,
+      "max_s": 2.10924267578125,
+      "std_s": 9.473610531694956e-05,
+      "accuracy": {
+        "recon_rel_err": 3.60664656496901e-15,
+        "orth_err": 4.239544997223498e-15,
+        "recon_rel_err_in_u": 32.485784252103024
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "eigh",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        4.65453955078125,
+        4.67015380859375,
+        4.68526611328125
+      ],
+      "median_s": 4.67015380859375,
+      "min_s": 4.65453955078125,
+      "max_s": 4.68526611328125,
+      "std_s": 0.015363964565770197,
+      "accuracy": {
+        "recon_rel_err": 7.0913923587763756e-15,
+        "orth_err": 9.046061967081346e-15,
+        "recon_rel_err_in_u": 63.873583969046535
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "eigh",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        4.055288330078125,
+        4.06017919921875,
+        4.0546279296875
+      ],
+      "median_s": 4.055288330078125,
+      "min_s": 4.0546279296875,
+      "max_s": 4.06017919921875,
+      "std_s": 0.0030324171611447637,
+      "accuracy": {
+        "recon_rel_err": 7.34141536888646e-15,
+        "orth_err": 9.139289713951492e-15,
+        "recon_rel_err_in_u": 66.1255910393782
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "eigh",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        3.512180908203125,
+        3.52087841796875,
+        3.5152373046875
+      ],
+      "median_s": 3.5152373046875,
+      "min_s": 3.512180908203125,
+      "max_s": 3.52087841796875,
+      "std_s": 0.00441230088587079,
+      "accuracy": {
+        "recon_rel_err": 7.214331881515278e-15,
+        "orth_err": 9.051677309701781e-15,
+        "recon_rel_err_in_u": 64.98092474663859
+      }
+    },
+    {
+      "n": 8192,
+      "routine": "eigh",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        4.67804345703125,
+        4.65710693359375,
+        4.65680517578125
+      ],
+      "median_s": 4.65710693359375,
+      "min_s": 4.65680517578125,
+      "max_s": 4.67804345703125,
+      "std_s": 0.012175752282579834,
+      "accuracy": {
+        "recon_rel_err": 7.0913923587763756e-15,
+        "orth_err": 9.046061967081346e-15,
+        "recon_rel_err_in_u": 63.873583969046535
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "gemm",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        4.24106787109375,
+        4.2414521484375,
+        4.2426572265625,
+        4.2433076171875,
+        4.24241943359375
+      ],
+      "median_s": 4.24241943359375,
+      "min_s": 4.24106787109375,
+      "max_s": 4.2433076171875,
+      "std_s": 0.0009114808099789474,
+      "accuracy": {}
+    },
+    {
+      "n": 12000,
+      "routine": "gemm",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        4.24339404296875,
+        4.24321826171875,
+        4.242158203125,
+        4.24231396484375,
+        4.2437548828125
+      ],
+      "median_s": 4.24321826171875,
+      "min_s": 4.242158203125,
+      "max_s": 4.2437548828125,
+      "std_s": 0.0006976498012947596,
+      "accuracy": {}
+    },
+    {
+      "n": 12000,
+      "routine": "gemm",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        4.24262744140625,
+        4.2429013671875,
+        4.24302978515625,
+        4.24293212890625,
+        4.243390625
+      ],
+      "median_s": 4.24293212890625,
+      "min_s": 4.24262744140625,
+      "max_s": 4.243390625,
+      "std_s": 0.0002755876418074303,
+      "accuracy": {}
+    },
+    {
+      "n": 12000,
+      "routine": "gemm",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        4.24255224609375,
+        4.24281201171875,
+        4.24428466796875,
+        4.243865234375,
+        4.24362890625
+      ],
+      "median_s": 4.24362890625,
+      "min_s": 4.24255224609375,
+      "max_s": 4.24428466796875,
+      "std_s": 0.0007266019912980226,
+      "accuracy": {}
+    },
+    {
+      "n": 12000,
+      "routine": "lu_solve",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        1.531369140625,
+        1.5314254150390625,
+        1.5314864501953125,
+        1.5315556640625,
+        1.531775390625
+      ],
+      "median_s": 1.5314864501953125,
+      "min_s": 1.531369140625,
+      "max_s": 1.531775390625,
+      "std_s": 0.00015755765658102133,
+      "accuracy": {
+        "backward_err": 5.281540739912946e-15,
+        "backward_err_in_u": 47.571889816428076
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "lu_solve",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.309817626953125,
+        0.3101910095214844,
+        0.3104477233886719,
+        0.31013507080078123,
+        0.3101091613769531
+      ],
+      "median_s": 0.31013507080078123,
+      "min_s": 0.309817626953125,
+      "max_s": 0.3104477233886719,
+      "std_s": 0.0002248306496805474,
+      "accuracy": {
+        "backward_err": 5.3658992813951826e-15,
+        "backward_err_in_u": 48.33172400839791
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "lu_solve",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.31300128173828123,
+        0.31315838623046877,
+        0.31320806884765623,
+        0.3129240417480469,
+        0.3132286376953125
+      ],
+      "median_s": 0.31315838623046877,
+      "min_s": 0.3129240417480469,
+      "max_s": 0.3132286376953125,
+      "std_s": 0.0001344049118261832,
+      "accuracy": {
+        "backward_err": 6.025969330989413e-15,
+        "backward_err_in_u": 54.27710646717991
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "lu_solve",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        1.531543701171875,
+        1.5309915771484375,
+        1.5336416015625,
+        1.5313638916015626,
+        1.5314573974609376
+      ],
+      "median_s": 1.5314573974609376,
+      "min_s": 1.5309915771484375,
+      "max_s": 1.5336416015625,
+      "std_s": 0.0010509875446023094,
+      "accuracy": {
+        "backward_err": 5.281540739912946e-15,
+        "backward_err_in_u": 47.571889816428076
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "cholesky",
+      "mode": "default",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.813619384765625,
+        0.8131937866210938,
+        0.8135636596679687,
+        0.81354052734375,
+        0.8133750610351562
+      ],
+      "median_s": 0.81354052734375,
+      "min_s": 0.8131937866210938,
+      "max_s": 0.813619384765625,
+      "std_s": 0.00017371397556627756,
+      "accuracy": {
+        "recon_rel_err": 2.3336416544974996e-16,
+        "recon_rel_err_in_u": 2.1019575371222414
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "cholesky",
+      "mode": "emu-performant",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 1
+      },
+      "status": "ok",
+      "times_s": [
+        0.7843688354492188,
+        0.78428369140625,
+        0.784467041015625,
+        0.7846510009765625,
+        0.7845825805664063
+      ],
+      "median_s": 0.784467041015625,
+      "min_s": 0.78428369140625,
+      "max_s": 0.7846510009765625,
+      "std_s": 0.00015032270929200606,
+      "accuracy": {
+        "recon_rel_err": 2.3336416544974996e-16,
+        "recon_rel_err_in_u": 2.1019575371222414
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "cholesky",
+      "mode": "emu-eager",
+      "readback": {
+        "math_mode": 4,
+        "emulation_strategy": 2
+      },
+      "status": "ok",
+      "times_s": [
+        0.7840712280273437,
+        0.78412841796875,
+        0.7842584228515626,
+        0.7840115356445313,
+        0.7841788940429687
+      ],
+      "median_s": 0.78412841796875,
+      "min_s": 0.7840115356445313,
+      "max_s": 0.7842584228515626,
+      "std_s": 9.535860799024037e-05,
+      "accuracy": {
+        "recon_rel_err": 2.333757608835332e-16,
+        "recon_rel_err_in_u": 2.1020619795047724
+      }
+    },
+    {
+      "n": 12000,
+      "routine": "cholesky",
+      "mode": "default-again",
+      "readback": {
+        "math_mode": 1,
+        "emulation_strategy": 0
+      },
+      "status": "ok",
+      "times_s": [
+        0.8135394287109375,
+        0.8136682739257812,
+        0.8136220092773437,
+        0.813562255859375,
+        0.8133678588867187
+      ],
+      "median_s": 0.813562255859375,
+      "min_s": 0.8133678588867187,
+      "max_s": 0.8136682739257812,
+      "std_s": 0.00011466482490515583,
+      "accuracy": {
+        "recon_rel_err": 2.3336416544974996e-16,
+        "recon_rel_err_in_u": 2.1019575371222414
+      }
+    }
+  ]
+}
