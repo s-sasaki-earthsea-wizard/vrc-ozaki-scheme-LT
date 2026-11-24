@@ -285,6 +285,7 @@ make adi-quick      # ADI のソルバ比較を小サイズで動作確認 (resu
 make adi-bench      # ADI を伝播行列 / 密な LU / 三重対角ソルバで比較、nsys まで (results-adi/)
 make analyze      # results/ と results-phi/ から図と report.md を再生成
 make slides       # スライドを http://localhost:8000 で表示 (ブラウザにキャッシュさせない http.server)
+make pdf          # スライドを slides-jp/slides-jp.pdf に書き出す (decktape が必要)
 make fonts        # スライド (slides-jp/index.html) で使う字にフォントを絞り直す (uv が必要)
 ```
 

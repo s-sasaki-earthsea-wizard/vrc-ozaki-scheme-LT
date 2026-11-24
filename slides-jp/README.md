@@ -55,24 +55,33 @@ make slides SLIDES_BIND=0.0.0.0    # 別のマシンのブラウザから見る 
 make fonts
 ```
 
-### スライドをpdfでエクスポート
+### スライドを PDF でエクスポート
 
-`decktape`を使ってスライドをPDFにエクスポートできます。
+[decktape](https://github.com/astefanutti/decktape) でスライドを PDF に書き出す。
 
-1. `decktape`のインストール
+最初に 1 回、`decktape` を入れる (3.17.0 は Node.js 22.12 以降が要る)。Puppeteer 用の Chrome も一緒にダウンロードされる:
 
 ```bash
 npm install -g decktape
 ```
 
-1. PDFエクスポート
+リポジトリ直下で次を流すと、`slides-jp/slides-jp.pdf` ができる (git の対象外)。`slides-jp/` で `make` を流しても同じ:
 
-以下のコマンドで`html`で書いたスライドをpdfにエクスポートできます:
-
-``` bash
-# スライドは 16:9
-decktape --size 1920x1080 index.html slides.pdf
+```bash
+make pdf
 ```
+
+- 数式の KaTeX を jsDelivr から読むので、書き出しにはネットワークが要る
+- スライドの文字を変えたときは、先に `make fonts` を流す
+- Ubuntu 23.10 以降では、AppArmor の制限で Puppeteer の Chrome がサンドボックスを起動できず、`No usable sandbox!` で落ちる。
+  そのため Linux では `--no-sandbox` を付けている。信頼できるスライドだけを書き出す
+- `DECKTAPE_ARGS` を渡すと、decktape に渡すオプション (Linux では `--no-sandbox`) が置き換わる。別の Chrome を使うときなどに指定する:
+
+  ```bash
+  make pdf DECKTAPE_ARGS=--chrome-path=/usr/bin/google-chrome-stable
+  ```
+
+- できた PDF を Ghostscript (10.02.1 で確認) で圧縮すると、太字のマーカーが消える
 
 ## 免責事項
 
